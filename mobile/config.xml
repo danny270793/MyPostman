@@ -1,12 +1,17 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="io.github.danny270793.mypostman" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>MyPostman</name>
-    <description>Sample Apache Cordova App</description>
-    <author email="dev@cordova.apache.org" href="https://cordova.apache.org">
-        Apache Cordova Team
+    <name>
+        My Postman
+    </name>
+    <description>
+        Postman "replica" app
+    </description>
+    <author email="danny270793@icloud.com" href="https://danny270793.github.io">
+        Danny Vaca
     </author>
     <content src="index.html" />
     <allow-intent href="http://*/*" />
     <allow-intent href="https://*/*" />
-    <hook type="after_build" src="hooks/deploy_react.js" />
+    <hook type="before_build" src="hooks/deploy_react.js" />
+    <icon src="www/icon.png" />
 </widget>
