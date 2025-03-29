@@ -9,8 +9,10 @@
     "run:web": "cd web && npm run dev",
     "build:android": "cd mobile && cordova build android",
     "run:android": "cd mobile && cordova run android",
+    "android": "npm run build:web && npm run build:android && npm run run:android",
     "build:ios": "cd mobile && cordova build ios",
-    "run:ios": "cd mobile && cordova run ios"
+    "run:ios": "cd mobile && cordova run ios",
+    "ios": "npm run build:web && npm run build:ios && npm run run:ios"
   },
   "keywords": [],
   "author": "",
