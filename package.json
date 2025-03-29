@@ -12,7 +12,8 @@
     "android": "npm run build:web && npm run build:android && npm run run:android",
     "build:ios": "cd mobile && cordova build ios",
     "run:ios": "cd mobile && cordova run ios",
-    "ios": "npm run build:web && npm run build:ios && npm run run:ios"
+    "ios": "npm run build:web && npm run build:ios && npm run run:ios",
+    "mobile:plugin": "cd mobile && cordova plugin"
   },
   "keywords": [],
   "author": "",
