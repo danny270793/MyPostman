@@ -1,8 +1,8 @@
 function App() {
   return (
     <>
+      <input type="checkbox" checked={window.cordova !== undefined}/>
       <label>Cordova</label>
-      <input type="checkbok" value={`${window.cordova !== undefined}`} />
     </>
   )
 }
