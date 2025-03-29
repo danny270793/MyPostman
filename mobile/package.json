@@ -20,6 +20,7 @@
     "platforms": [
       "android",
       "ios"
-    ]
+    ],
+    "plugins": {}
   }
 }

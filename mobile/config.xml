@@ -14,4 +14,8 @@
     <allow-intent href="https://*/*" />
     <hook type="before_build" src="hooks/deploy_react.js" />
     <icon src="www/icon.png" />
+    <platform name="android">
+        <preference name="AndroidWindowSplashScreenAnimatedIcon" value="www/icon.png" />
+    </platform>
+    <preference name="SplashScreenBackgroundColor" value="#0000FF" />
 </widget>
