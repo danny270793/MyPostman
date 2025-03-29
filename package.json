@@ -1,0 +1,18 @@
+{
+  "name": "mypostman",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "install:web": "cd web && npm install",
+    "build:web": "cd web && npm run build",
+    "run:web": "cd web && npm run dev",
+    "build:android": "cd mobile && cordova build android",
+    "run:android": "cd mobile && cordova run android",
+    "build:ios": "cd mobile && cordova build ios",
+    "run:ios": "cd mobile && cordova run ios"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
