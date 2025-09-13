@@ -42,6 +42,12 @@
   font-weight: 600;
 }
 
+.header-controls {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
 .theme-toggle {
   padding: 0.5rem 1rem;
   border: 1px solid var(--border-color);
@@ -63,6 +69,31 @@
 }
 
 .theme-toggle:hover {
+  opacity: 0.8;
+}
+
+.language-select {
+  padding: 0.5rem;
+  border: 1px solid var(--border-color);
+  background-color: var(--button-bg);
+  color: var(--text-color);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.app.light .language-select {
+  --button-bg: #ffffff;
+  --text-color: #333333;
+}
+
+.app.dark .language-select {
+  --button-bg: #3d3d3d;
+  --text-color: #ffffff;
+}
+
+.language-select:hover {
   opacity: 0.8;
 }
 
