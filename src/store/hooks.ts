@@ -18,6 +18,7 @@ export const useRequestHistory = () => useAppSelector(state => state.requests.hi
 export const useSavedRequests = () => useAppSelector(state => state.requests.savedRequests);
 
 export const useTheme = () => useAppSelector(state => state.app.theme);
+export const useLanguage = () => useAppSelector(state => state.app.language);
 export const useSidebarCollapsed = () => useAppSelector(state => state.app.sidebarCollapsed);
 export const useActiveTab = () => useAppSelector(state => state.app.activeTab);
 export const useEnvironmentVariables = () => useAppSelector(state => state.app.environmentVariables);
