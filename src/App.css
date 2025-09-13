@@ -1,3 +1,8 @@
+/* Tailwind CSS Directives */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 /* MyPostman - Postman-like Interface */
 
 /* Reset and Base Styles */
