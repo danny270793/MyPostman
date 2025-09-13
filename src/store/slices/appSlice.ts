@@ -17,6 +17,7 @@ interface AppState {
   isInitialized: boolean;
   isLoading: boolean;
   theme: 'light' | 'dark';
+  language: 'en' | 'es';
   sidebarCollapsed: boolean;
   activeTab: 'request' | 'history' | 'saved' | 'settings';
   environmentVariables: EnvironmentVariable[];
@@ -30,6 +31,7 @@ const initialState: AppState = {
   isInitialized: false,
   isLoading: false,
   theme: 'light',
+  language: 'en',
   sidebarCollapsed: false,
   activeTab: 'request',
   environmentVariables: [],
@@ -64,6 +66,11 @@ export const appSlice = createSlice({
     },
     toggleTheme: (state) => {
       state.theme = state.theme === 'light' ? 'dark' : 'light';
+    },
+    
+    // Language actions
+    setLanguage: (state, action: PayloadAction<'en' | 'es'>) => {
+      state.language = action.payload;
     },
     
     // Sidebar actions
