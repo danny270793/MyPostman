@@ -31,6 +31,12 @@ function* initializeAppSaga(): Generator<any, void, any> {
       yield put(appSlice.actions.setTheme(savedTheme as 'light' | 'dark'));
     }
     
+    // Load language preference (i18n will also detect from browser)
+    const savedLanguage = localStorage.getItem('mypostman_language');
+    if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'es')) {
+      yield put(appSlice.actions.setLanguage(savedLanguage));
+    }
+    
     // Load sidebar state
     const sidebarState = localStorage.getItem('mypostman_sidebar_collapsed');
     if (sidebarState !== null) {
@@ -75,6 +81,29 @@ function* updateThemeSaga(action: PayloadAction<'light' | 'dark'>): Generator<an
   }
 }
 
+// Update language saga
+function* updateLanguageSaga(action: PayloadAction<'en' | 'es'>): Generator<any, void, any> {
+  try {
+    const { changeLanguage } = yield import('react-i18next');
+    
+    // Change i18n language
+    yield changeLanguage(action.payload);
+    
+    // Save to localStorage
+    localStorage.setItem('mypostman_language', action.payload);
+    
+    yield put(appSlice.actions.showNotification({
+      type: 'success',
+      message: action.payload === 'en' ? 'Language changed to English' : 'Idioma cambiado a Español',
+    }));
+  } catch (error) {
+    yield put(appSlice.actions.showNotification({
+      type: 'error',
+      message: 'Failed to update language',
+    }));
+  }
+}
+
 // Update sidebar state saga
 function* updateSidebarSaga(action: PayloadAction<boolean>): Generator<any, void, any> {
   try {
@@ -115,6 +144,7 @@ function* exportDataSaga(): Generator<any, void, any> {
       environmentVariables: currentState.app.environmentVariables,
       settings: {
         theme: currentState.app.theme,
+        language: currentState.app.language,
         sidebarCollapsed: currentState.app.sidebarCollapsed,
       },
       exportDate: new Date().toISOString(),
@@ -177,6 +207,7 @@ export function* watchAppSagas(): Generator<any, void, any> {
   yield takeEvery(appSlice.actions.showNotification.type, autoHideNotificationSaga);
   yield takeLatest(appSlice.actions.initializeApp.type, initializeAppSaga);
   yield takeEvery(appSlice.actions.setTheme.type, updateThemeSaga);
+  yield takeEvery(appSlice.actions.setLanguage.type, updateLanguageSaga);
   yield takeEvery(appSlice.actions.setSidebarCollapsed.type, updateSidebarSaga);
   yield takeEvery(appSlice.actions.saveEnvironmentVariables.type, saveEnvironmentVariablesSaga);
   yield takeLatest(appSlice.actions.exportData.type, exportDataSaga);
