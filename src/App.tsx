@@ -52,9 +52,9 @@ function App() {
 
   if (appLoading) {
   return (
-      <div className="postman-loading">
-        <div className="loading-spinner"></div>
-        <p>{t('app.loading')}</p>
+      <div className="postman-loading flex flex-col items-center justify-center min-h-screen">
+        <div className="loading-spinner w-10 h-10 border-4 border-gray-300 border-t-postman-orange rounded-full animate-spin mb-4"></div>
+        <p className="text-gray-600 text-lg">{t('app.loading')}</p>
       </div>
     )
   }
@@ -65,12 +65,12 @@ function App() {
       <header className="postman-header">
         <div className="header-left">
           <button 
-            className="sidebar-toggle"
+            className="sidebar-toggle hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-200"
             onClick={() => setSidebarOpen(!sidebarOpen)}
           >
             ☰
           </button>
-          <h1 className="app-title">{t('app.title')}</h1>
+          <h1 className="app-title text-xl font-semibold">{t('app.title')}</h1>
         </div>
         <div className="header-controls">
           <select 
@@ -195,7 +195,7 @@ function App() {
               <button 
                 onClick={handleSendRequest}
                 disabled={requestLoading}
-                className="send-button"
+                className="send-button bg-postman-orange hover:bg-postman-orange-hover disabled:bg-gray-400 px-6 py-2 rounded font-semibold text-white transition-colors duration-200"
               >
                 {requestLoading ? t('request.sending') : t('request.send')}
               </button>
