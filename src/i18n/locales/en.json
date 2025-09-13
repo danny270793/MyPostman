@@ -1,0 +1,107 @@
+{
+  "app": {
+    "title": "MyPostman",
+    "loading": "Initializing MyPostman...",
+    "footer": "Redux + Saga powered API client"
+  },
+  "theme": {
+    "switchTo": "Switch to {{mode}} Mode",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "language": {
+    "switchLanguage": "Language",
+    "english": "English",
+    "spanish": "Spanish"
+  },
+  "request": {
+    "title": "Make a Request",
+    "url": "Enter request URL",
+    "method": "Method",
+    "headers": "Headers",
+    "body": "Request Body",
+    "send": "Send",
+    "sending": "Sending...",
+    "methods": {
+      "GET": "GET",
+      "POST": "POST", 
+      "PUT": "PUT",
+      "DELETE": "DELETE",
+      "PATCH": "PATCH"
+    },
+    "placeholders": {
+      "headers": "{\"Content-Type\": \"application/json\"}",
+      "body": "{\"key\": \"value\"}"
+    }
+  },
+  "response": {
+    "title": "Response",
+    "status": "Status",
+    "url": "URL",
+    "method": "Method",
+    "data": "Response Data",
+    "error": "Error",
+    "noResponse": "No response yet. Send a request to see results here."
+  },
+  "history": {
+    "title": "Request History",
+    "empty": "No requests in history",
+    "clear": "Clear History",
+    "loadToEditor": "Load to Editor"
+  },
+  "saved": {
+    "title": "Saved Requests",
+    "empty": "No saved requests",
+    "save": "Save Request",
+    "delete": "Delete",
+    "load": "Load",
+    "name": "Request Name",
+    "description": "Description"
+  },
+  "settings": {
+    "title": "Settings",
+    "theme": "Theme",
+    "language": "Language",
+    "environment": "Environment Variables",
+    "export": "Export Data",
+    "import": "Import Data",
+    "reset": "Reset App"
+  },
+  "environment": {
+    "title": "Environment Variables",
+    "key": "Key",
+    "value": "Value",
+    "enabled": "Enabled",
+    "add": "Add Variable",
+    "remove": "Remove",
+    "save": "Save Variables"
+  },
+  "notifications": {
+    "requestSaved": "Request saved successfully",
+    "requestSaveFailed": "Failed to save request",
+    "historyClear": "Request history cleared",
+    "variablesSaved": "Environment variables saved",
+    "variablesSaveFailed": "Failed to save environment variables",
+    "dataExported": "Data exported successfully",
+    "dataExportFailed": "Failed to export data",
+    "themeChanged": "Theme changed to {{theme}}",
+    "languageChanged": "Language changed to {{language}}",
+    "urlRequired": "Please enter a URL",
+    "invalidJson": "Invalid JSON format"
+  },
+  "errors": {
+    "networkError": "Network error occurred",
+    "timeout": "Request timeout",
+    "unauthorized": "Unauthorized access",
+    "forbidden": "Forbidden access",
+    "notFound": "Resource not found",
+    "serverError": "Internal server error",
+    "unknown": "An unknown error occurred"
+  },
+  "tabs": {
+    "request": "Request",
+    "history": "History", 
+    "saved": "Saved",
+    "settings": "Settings"
+  }
+}
