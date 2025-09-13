@@ -1,5 +1,6 @@
-import { put, takeEvery, takeLatest, delay, select } from 'redux-saga/effects';
+import { put, takeEvery, takeLatest, delay, select, call } from 'redux-saga/effects';
 import type { PayloadAction } from '@reduxjs/toolkit';
+import i18n from '../../i18n';
 import { appSlice } from '../slices/appSlice';
 import type { RootState } from '../reducers';
 
@@ -31,10 +32,21 @@ function* initializeAppSaga(): Generator<any, void, any> {
       yield put(appSlice.actions.setTheme(savedTheme as 'light' | 'dark'));
     }
     
-    // Load language preference (i18n will also detect from browser)
+    // Load language preference and sync with i18n
     const savedLanguage = localStorage.getItem('mypostman_language');
     if (savedLanguage && (savedLanguage === 'en' || savedLanguage === 'es')) {
+      yield call([i18n, 'changeLanguage'], savedLanguage);
       yield put(appSlice.actions.setLanguage(savedLanguage));
+    } else {
+      // Sync Redux state with current i18n language (from browser detection)
+      const currentLanguage = i18n.language;
+      if (currentLanguage === 'en' || currentLanguage === 'es') {
+        yield put(appSlice.actions.setLanguage(currentLanguage));
+      } else {
+        // Fallback to English if detected language is not supported
+        yield call([i18n, 'changeLanguage'], 'en');
+        yield put(appSlice.actions.setLanguage('en'));
+      }
     }
     
     // Load sidebar state
@@ -84,10 +96,8 @@ function* updateThemeSaga(action: PayloadAction<'light' | 'dark'>): Generator<an
 // Update language saga
 function* updateLanguageSaga(action: PayloadAction<'en' | 'es'>): Generator<any, void, any> {
   try {
-    const { changeLanguage } = yield import('react-i18next');
-    
-    // Change i18n language
-    yield changeLanguage(action.payload);
+    // Change i18n language using the call effect to handle the Promise
+    yield call([i18n, 'changeLanguage'], action.payload);
     
     // Save to localStorage
     localStorage.setItem('mypostman_language', action.payload);
