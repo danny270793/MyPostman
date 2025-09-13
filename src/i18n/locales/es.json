@@ -1,0 +1,107 @@
+{
+  "app": {
+    "title": "MyPostman",
+    "loading": "Inicializando MyPostman...",
+    "footer": "Cliente API potenciado por Redux + Saga"
+  },
+  "theme": {
+    "switchTo": "Cambiar a Modo {{mode}}",
+    "light": "Claro",
+    "dark": "Oscuro"
+  },
+  "language": {
+    "switchLanguage": "Idioma",
+    "english": "Inglés",
+    "spanish": "Español"
+  },
+  "request": {
+    "title": "Realizar una Solicitud",
+    "url": "Ingrese la URL de la solicitud",
+    "method": "Método",
+    "headers": "Encabezados",
+    "body": "Cuerpo de la Solicitud",
+    "send": "Enviar",
+    "sending": "Enviando...",
+    "methods": {
+      "GET": "GET",
+      "POST": "POST",
+      "PUT": "PUT", 
+      "DELETE": "DELETE",
+      "PATCH": "PATCH"
+    },
+    "placeholders": {
+      "headers": "{\"Content-Type\": \"application/json\"}",
+      "body": "{\"clave\": \"valor\"}"
+    }
+  },
+  "response": {
+    "title": "Respuesta",
+    "status": "Estado",
+    "url": "URL",
+    "method": "Método",
+    "data": "Datos de Respuesta",
+    "error": "Error",
+    "noResponse": "Aún no hay respuesta. Envíe una solicitud para ver los resultados aquí."
+  },
+  "history": {
+    "title": "Historial de Solicitudes",
+    "empty": "No hay solicitudes en el historial",
+    "clear": "Limpiar Historial",
+    "loadToEditor": "Cargar en Editor"
+  },
+  "saved": {
+    "title": "Solicitudes Guardadas",
+    "empty": "No hay solicitudes guardadas",
+    "save": "Guardar Solicitud",
+    "delete": "Eliminar",
+    "load": "Cargar",
+    "name": "Nombre de la Solicitud",
+    "description": "Descripción"
+  },
+  "settings": {
+    "title": "Configuración",
+    "theme": "Tema",
+    "language": "Idioma",
+    "environment": "Variables de Entorno",
+    "export": "Exportar Datos",
+    "import": "Importar Datos",
+    "reset": "Restablecer App"
+  },
+  "environment": {
+    "title": "Variables de Entorno",
+    "key": "Clave",
+    "value": "Valor",
+    "enabled": "Habilitado",
+    "add": "Agregar Variable",
+    "remove": "Eliminar",
+    "save": "Guardar Variables"
+  },
+  "notifications": {
+    "requestSaved": "Solicitud guardada con éxito",
+    "requestSaveFailed": "Error al guardar la solicitud",
+    "historyClear": "Historial de solicitudes limpiado",
+    "variablesSaved": "Variables de entorno guardadas",
+    "variablesSaveFailed": "Error al guardar las variables de entorno",
+    "dataExported": "Datos exportados con éxito",
+    "dataExportFailed": "Error al exportar datos",
+    "themeChanged": "Tema cambiado a {{theme}}",
+    "languageChanged": "Idioma cambiado a {{language}}",
+    "urlRequired": "Por favor ingrese una URL",
+    "invalidJson": "Formato JSON inválido"
+  },
+  "errors": {
+    "networkError": "Ocurrió un error de red",
+    "timeout": "Tiempo de espera agotado",
+    "unauthorized": "Acceso no autorizado",
+    "forbidden": "Acceso prohibido",
+    "notFound": "Recurso no encontrado",
+    "serverError": "Error interno del servidor",
+    "unknown": "Ocurrió un error desconocido"
+  },
+  "tabs": {
+    "request": "Solicitud",
+    "history": "Historial",
+    "saved": "Guardadas",
+    "settings": "Configuración"
+  }
+}
