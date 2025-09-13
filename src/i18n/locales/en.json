@@ -102,6 +102,7 @@
     "request": "Request",
     "history": "History", 
     "saved": "Saved",
-    "settings": "Settings"
+    "settings": "Settings",
+    "collections": "Collections"
   }
 }
