@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import type { ActiveTab } from '../hooks/useUIState'
 import { useRequest } from '../hooks/useRequest'
 import { getMethodColors } from '../utils/colors'
+import { type Authorization } from '../store/slices/requestSlice'
 
 interface HeaderKeyValue {
   id: string
@@ -38,6 +39,7 @@ export const RequestBuilder: React.FC<RequestBuilderProps> = ({
     updateUrl,
     updateHeaders,
     updateParams,
+    updateAuthorization,
     updateBody
   } = useRequest()
 
@@ -47,6 +49,10 @@ export const RequestBuilder: React.FC<RequestBuilderProps> = ({
 
   const handleParamsChange = (params: Record<string, string>) => {
     updateParams(params)
+  }
+
+  const handleAuthorizationChange = (authorization: Authorization) => {
+    updateAuthorization(authorization)
   }
 
   return (
@@ -74,9 +80,11 @@ export const RequestBuilder: React.FC<RequestBuilderProps> = ({
         activeTab={activeTab}
         headers={currentRequest.headers}
         params={currentRequest.params}
+        authorization={currentRequest.authorization}
         body={currentRequest.body}
         onHeadersChange={handleHeadersChange}
         onParamsChange={handleParamsChange}
+        onAuthorizationChange={handleAuthorizationChange}
         onBodyChange={updateBody}
       />
     </div>
@@ -413,11 +421,13 @@ const TabContent: React.FC<{
   activeTab: ActiveTab
   headers: Record<string, string>
   params: Record<string, string>
+  authorization: Authorization
   body: string
   onHeadersChange: (headers: Record<string, string>) => void
   onParamsChange: (params: Record<string, string>) => void
+  onAuthorizationChange: (authorization: Authorization) => void
   onBodyChange: (value: string) => void
-}> = ({ activeTab, headers, params, body, onHeadersChange, onParamsChange, onBodyChange }) => {
+}> = ({ activeTab, headers, params, authorization, body, onHeadersChange, onParamsChange, onAuthorizationChange, onBodyChange }) => {
   const { t } = useTranslation()
 
   return (
@@ -443,7 +453,12 @@ const TabContent: React.FC<{
           onChange={onParamsChange}
         />
       )}
-      {activeTab === 'auth' && <ComingSoonTab icon="🔐" />}
+      {activeTab === 'auth' && (
+        <AuthorizationComponent 
+          authorization={authorization}
+          onChange={onAuthorizationChange}
+        />
+      )}
     </div>
   )
 }
@@ -878,6 +893,220 @@ const ParamsKeyValue: React.FC<{
   )
 }
 
+const AuthorizationComponent: React.FC<{
+  authorization: Authorization
+  onChange: (authorization: Authorization) => void
+}> = ({ authorization, onChange }) => {
+  const [authType, setAuthType] = useState(authorization.type)
+  const [token, setToken] = useState(authorization.token || '')
+  const [username, setUsername] = useState(authorization.username || '')
+  const [password, setPassword] = useState(authorization.password || '')
+  const [apiKey, setApiKey] = useState(authorization.key || '')
+  const [apiValue, setApiValue] = useState(authorization.value || '')
+  const [addTo, setAddTo] = useState<'header' | 'query'>(authorization.addTo || 'header')
+
+  useEffect(() => {
+    setAuthType(authorization.type)
+    setToken(authorization.token || '')
+    setUsername(authorization.username || '')
+    setPassword(authorization.password || '')
+    setApiKey(authorization.key || '')
+    setApiValue(authorization.value || '')
+    setAddTo(authorization.addTo || 'header')
+  }, [authorization])
+
+  const updateAuth = () => {
+    const newAuth: Authorization = {
+      type: authType,
+      ...(authType === 'bearer' && { token }),
+      ...(authType === 'basic' && { username, password }),
+      ...(authType === 'apikey' && { key: apiKey, value: apiValue, addTo }),
+    }
+    onChange(newAuth)
+  }
+
+  useEffect(() => {
+    updateAuth()
+  }, [authType, token, username, password, apiKey, apiValue, addTo])
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Authorization
+        </label>
+      </div>
+
+      {/* Auth Type Selector */}
+      <div className="space-y-3">
+        <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+          Type
+        </label>
+        <select
+          value={authType}
+          onChange={(e) => setAuthType(e.target.value as Authorization['type'])}
+          className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-postman-orange focus:border-transparent"
+        >
+          <option value="none">No Auth</option>
+          <option value="bearer">Bearer Token</option>
+          <option value="basic">Basic Auth</option>
+          <option value="apikey">API Key</option>
+        </select>
+      </div>
+
+      {/* Bearer Token */}
+      {authType === 'bearer' && (
+        <div className="space-y-3 p-4 bg-orange-50/50 dark:bg-orange-900/10 rounded-lg border border-orange-200/30 dark:border-orange-700/30">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Bearer Token
+            </label>
+          </div>
+          <input
+            type="text"
+            placeholder="Enter your bearer token"
+            value={token}
+            onChange={(e) => setToken(e.target.value)}
+            className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent font-mono"
+          />
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Will be sent as: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">Authorization: Bearer {token || 'your_token'}</code>
+          </p>
+        </div>
+      )}
+
+      {/* Basic Auth */}
+      {authType === 'basic' && (
+        <div className="space-y-3 p-4 bg-blue-50/50 dark:bg-blue-900/10 rounded-lg border border-blue-200/30 dark:border-blue-700/30">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Basic Authentication
+            </label>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                Username
+              </label>
+              <input
+                type="text"
+                placeholder="Enter username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent"
+              />
+            </div>
+          </div>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Will be sent as: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">Authorization: Basic base64(username:password)</code>
+          </p>
+        </div>
+      )}
+
+      {/* API Key */}
+      {authType === 'apikey' && (
+        <div className="space-y-3 p-4 bg-green-50/50 dark:bg-green-900/10 rounded-lg border border-green-200/30 dark:border-green-700/30">
+          <div className="flex items-center space-x-2">
+            <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              API Key
+            </label>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                Key
+              </label>
+              <input
+                type="text"
+                placeholder="e.g. X-API-Key"
+                value={apiKey}
+                onChange={(e) => setApiKey(e.target.value)}
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">
+                Value
+              </label>
+              <input
+                type="text"
+                placeholder="Enter API key value"
+                value={apiValue}
+                onChange={(e) => setApiValue(e.target.value)}
+                className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent font-mono"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-2">
+              Add to
+            </label>
+            <div className="flex space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  value="header"
+                  checked={addTo === 'header'}
+                  onChange={(e) => setAddTo(e.target.value as 'header' | 'query')}
+                  className="w-4 h-4 text-postman-orange border-gray-300 focus:ring-postman-orange dark:focus:ring-postman-orange dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                />
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Header</span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  value="query"
+                  checked={addTo === 'query'}
+                  onChange={(e) => setAddTo(e.target.value as 'header' | 'query')}
+                  className="w-4 h-4 text-postman-orange border-gray-300 focus:ring-postman-orange dark:focus:ring-postman-orange dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                />
+                <span className="ml-2 text-sm text-gray-700 dark:text-gray-300">Query Parameter</span>
+              </label>
+            </div>
+          </div>
+
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Will be sent as: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded">
+              {addTo === 'header' 
+                ? `${apiKey || 'X-API-Key'}: ${apiValue || 'your_api_key'}` 
+                : `?${apiKey || 'api_key'}=${apiValue || 'your_api_key'}`
+              }
+            </code>
+          </p>
+        </div>
+      )}
+
+      {/* No Auth */}
+      {authType === 'none' && (
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <svg className="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          <p className="text-sm">No authorization configured</p>
+          <p className="text-xs mt-1">Select an authorization type above to secure your requests</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 const BodyTab: React.FC<{
   value: string
   onChange: (value: string) => void
@@ -895,15 +1124,6 @@ const BodyTab: React.FC<{
         className="w-full h-32 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-mono text-sm resize-y focus:ring-2 focus:ring-postman-orange focus:border-transparent"
         rows={6}
       />
-    </div>
-  )
-}
-
-const ComingSoonTab: React.FC<{ icon: string }> = ({ icon }) => {
-  return (
-    <div className="text-center py-8">
-      <div className="text-4xl text-gray-400 dark:text-gray-400 mb-2">{icon}</div>
-      <p className="text-gray-500 dark:text-gray-400">Coming soon...</p>
     </div>
   )
 }

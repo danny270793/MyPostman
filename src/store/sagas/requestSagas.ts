@@ -1,6 +1,6 @@
 import { call, put, takeEvery, takeLatest, select } from 'redux-saga/effects';
 import { type PayloadAction } from '@reduxjs/toolkit';
-import { requestSlice } from '../slices/requestSlice';
+import { requestSlice, type Authorization } from '../slices/requestSlice';
 import { type RootState } from '../reducers';
 
 // Types for request payload
@@ -9,6 +9,7 @@ interface SendRequestPayload {
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: Record<string, string>;
   params?: Record<string, string>;
+  authorization?: Authorization;
   body?: any;
 }
 
@@ -42,15 +43,44 @@ function* apiCall(url: string, options: RequestInit): Generator<any, any, any> {
 
 // Send request saga
 function* sendRequestSaga(action: PayloadAction<SendRequestPayload>): Generator<any, void, any> {
-  const { url, method, headers = {}, params = {}, body } = action.payload;
+  const { url, method, headers = {}, params = {}, authorization, body } = action.payload;
   
   try {
     yield put(requestSlice.actions.setLoading(true));
     yield put(requestSlice.actions.clearError());
     
+    // Process authorization and merge with headers/params
+    const finalHeaders = { ...headers };
+    const finalParams = { ...params };
+    
+    if (authorization && authorization.type !== 'none') {
+      switch (authorization.type) {
+        case 'bearer':
+          if (authorization.token) {
+            finalHeaders['Authorization'] = `Bearer ${authorization.token}`;
+          }
+          break;
+        case 'basic':
+          if (authorization.username && authorization.password) {
+            const credentials = btoa(`${authorization.username}:${authorization.password}`);
+            finalHeaders['Authorization'] = `Basic ${credentials}`;
+          }
+          break;
+        case 'apikey':
+          if (authorization.key && authorization.value) {
+            if (authorization.addTo === 'header') {
+              finalHeaders[authorization.key] = authorization.value;
+            } else if (authorization.addTo === 'query') {
+              finalParams[authorization.key] = authorization.value;
+            }
+          }
+          break;
+      }
+    }
+    
     // Build URL with query parameters
     let finalUrl = url;
-    const queryParams = Object.entries(params)
+    const queryParams = Object.entries(finalParams)
       .filter(([key, value]) => key.trim() && value.trim())
       .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
       .join('&');
@@ -64,7 +94,7 @@ function* sendRequestSaga(action: PayloadAction<SendRequestPayload>): Generator<
       method,
       headers: {
         'Content-Type': 'application/json',
-        ...headers,
+        ...finalHeaders,
       },
     };
     
@@ -90,6 +120,7 @@ function* sendRequestSaga(action: PayloadAction<SendRequestPayload>): Generator<
       method,
       headers,
       params,
+      authorization: authorization || { type: 'none' },
       body,
       response: result.data,
       status: result.status,
