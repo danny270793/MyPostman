@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useAppDispatch, useAppSelector, useRequestLoading } from '../store/hooks'
-import { requestSlice } from '../store/slices/requestSlice'
+import { requestSlice, type Authorization } from '../store/slices/requestSlice'
 import { generateId } from '../utils/formatting'
 
 /**
@@ -28,6 +28,7 @@ export const useRequest = () => {
       method: currentRequest.method,
       headers: currentRequest.headers,
       params: currentRequest.params,
+      authorization: currentRequest.authorization,
       body: currentRequest.body ? JSON.parse(currentRequest.body) : undefined
     }))
   }
@@ -42,6 +43,7 @@ export const useRequest = () => {
       method: currentRequest.method,
       headers: currentRequest.headers,
       params: currentRequest.params,
+      authorization: currentRequest.authorization,
       body: currentRequest.body
     }))
   }
@@ -60,6 +62,10 @@ export const useRequest = () => {
 
   const updateParams = (params: Record<string, string>) => {
     dispatch(requestSlice.actions.setParams(params))
+  }
+
+  const updateAuthorization = (authorization: Authorization) => {
+    dispatch(requestSlice.actions.setAuthorization(authorization))
   }
 
   const updateBody = (body: string) => {
@@ -92,6 +98,7 @@ export const useRequest = () => {
     updateUrl,
     updateHeaders,
     updateParams,
+    updateAuthorization,
     updateBody,
     
     // Computed values
