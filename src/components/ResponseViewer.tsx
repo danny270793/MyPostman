@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ResponseTab } from '../hooks/useUIState'
 import { useRequest } from '../hooks/useRequest'
@@ -331,15 +331,25 @@ const ResponseContent: React.FC<{
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-6 bg-gradient-to-b from-white via-gray-50/30 to-white dark:from-gray-900 dark:via-gray-800/30 dark:to-gray-900">
         <div className="animate-[fadeIn_0.3s_ease-out]">
           {activeTab === 'body' && (
-            <ResponseBody data={response.data} headers={response.headers} size={response.responseSize} />
+            <ResponseBody 
+              key={`response-body-${response.url}-${response.responseTime}`}
+              data={response.data} 
+              headers={response.headers} 
+              size={response.responseSize} 
+            />
           )}
           
           {activeTab === 'headers' && (
-            <ResponseHeaders headers={response.headers} />
+            <ResponseHeaders 
+              key={`response-headers-${response.url}-${response.responseTime}`}
+              headers={response.headers} 
+            />
           )}
           
           {activeTab === 'cookies' && (
-            <ResponseCookies />
+            <ResponseCookies 
+              key={`response-cookies-${response.url}-${response.responseTime}`}
+            />
           )}
         </div>
       </div>
@@ -353,6 +363,13 @@ const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size:
     return typeof data === 'string' ? data : JSON.stringify(data)
   })
   const [isPrettified, setIsPrettified] = useState(false)
+  
+  // Update displayData when data or headers change (new response arrives)
+  useEffect(() => {
+    const rawData = typeof data === 'string' ? data : JSON.stringify(data)
+    setDisplayData(rawData)
+    setIsPrettified(false) // Reset to raw when new response arrives
+  }, [data, headers])
   
   // Content-Type detection for responses
   const getResponseContentType = () => {
