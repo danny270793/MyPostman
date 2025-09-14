@@ -14,17 +14,25 @@ interface SendRequestPayload {
 // API call function
 function* apiCall(url: string, options: RequestInit): Generator<any, any, any> {
   try {
+    const startTime = Date.now();
     const response: Response = yield call(fetch, url, options);
     const data = yield call([response, 'json']);
+    const endTime = Date.now();
     
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
     
+    // Calculate response size in bytes
+    const responseSize = new Blob([JSON.stringify(data)]).size;
+    const responseTime = endTime - startTime;
+    
     return {
       data,
       status: response.status,
       headers: response.headers,
+      responseTime,
+      responseSize,
     };
   } catch (error) {
     throw error;
@@ -59,6 +67,8 @@ function* sendRequestSaga(action: PayloadAction<SendRequestPayload>): Generator<
       headers: Object.fromEntries(result.headers.entries()),
       url,
       method,
+      responseTime: result.responseTime,
+      responseSize: result.responseSize,
     }));
     
     yield put(requestSlice.actions.addToHistory({
