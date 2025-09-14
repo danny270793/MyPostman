@@ -434,6 +434,7 @@ const TabContent: React.FC<{
           value={body}
           onChange={onBodyChange}
           label={t('request.placeholders.body')}
+          headers={headers}
         />
       )}
 
@@ -1101,19 +1102,121 @@ const BodyTab: React.FC<{
   value: string
   onChange: (value: string) => void
   label: string
-}> = ({ value, onChange, label }) => {
+  headers: Record<string, string>
+}> = ({ value, onChange, label, headers }) => {
+  const isJsonContentType = () => {
+    const contentType = Object.entries(headers).find(
+      ([key]) => key.toLowerCase() === 'content-type'
+    )?.[1]
+    return contentType?.toLowerCase().includes('application/json') || false
+  }
+
+  const validateJson = (jsonString: string) => {
+    if (!jsonString.trim()) return { isValid: true, error: null }
+    try {
+      JSON.parse(jsonString)
+      return { isValid: true, error: null }
+    } catch (error) {
+      return { isValid: false, error: error instanceof Error ? error.message : 'Invalid JSON' }
+    }
+  }
+
+  const prettifyJson = () => {
+    if (!value.trim()) return
+    try {
+      const parsed = JSON.parse(value)
+      const prettified = JSON.stringify(parsed, null, 2)
+      onChange(prettified)
+    } catch (error) {
+      // Don't change the value if it's not valid JSON
+      console.warn('Cannot prettify invalid JSON:', error)
+    }
+  }
+
+  const jsonValidation = isJsonContentType() ? validateJson(value) : null
+
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Request Body
-      </label>
-      <textarea
-        placeholder={label}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full h-32 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-mono text-sm resize-y focus:ring-2 focus:ring-postman-orange focus:border-transparent"
-        rows={6}
-      />
+    <div className="space-y-3">
+      <div className="flex items-center justify-between">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Request Body
+        </label>
+        
+        {/* JSON Controls */}
+        {isJsonContentType() && (
+          <div className="flex items-center space-x-3">
+            {/* JSON Validation Indicator */}
+            <div className="flex items-center space-x-2">
+              {jsonValidation?.isValid ? (
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-xs text-green-600 dark:text-green-400 font-medium">Valid JSON</span>
+                </div>
+              ) : (
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                  <span className="text-xs text-red-600 dark:text-red-400 font-medium">Invalid JSON</span>
+                </div>
+              )}
+            </div>
+            
+            {/* Prettify Button */}
+            <button
+              onClick={prettifyJson}
+              disabled={!jsonValidation?.isValid}
+              className="px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:ring-postman-orange focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+              title="Format JSON"
+            >
+              <div className="flex items-center space-x-1">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                </svg>
+                <span>Prettify</span>
+              </div>
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="relative">
+        <textarea
+          placeholder={label}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className={`w-full h-32 px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-mono text-sm resize-y focus:ring-2 focus:ring-postman-orange focus:border-transparent transition-colors duration-200 ${
+            isJsonContentType() && !jsonValidation?.isValid && value.trim()
+              ? 'border-red-300 dark:border-red-600'
+              : 'border-gray-300 dark:border-gray-600'
+          }`}
+          rows={6}
+        />
+        
+        {/* JSON Error Message */}
+        {isJsonContentType() && !jsonValidation?.isValid && value.trim() && (
+          <div className="absolute bottom-2 left-2 right-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded px-2 py-1">
+            <p className="text-xs text-red-600 dark:text-red-400 font-mono">
+              {jsonValidation?.error}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* JSON Helper Text */}
+      {isJsonContentType() && (
+        <div className="bg-blue-50/50 dark:bg-blue-900/10 rounded-lg p-3 border border-blue-200/30 dark:border-blue-700/30">
+          <div className="flex items-start space-x-2">
+            <svg className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+              <p className="text-xs text-blue-700 dark:text-blue-300 font-medium">JSON Body Detected</p>
+              <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
+                Your Content-Type header is set to application/json. Make sure your body contains valid JSON format.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
