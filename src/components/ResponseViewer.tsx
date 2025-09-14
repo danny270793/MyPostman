@@ -274,16 +274,18 @@ const ResponseTabs: React.FC<{
           <button 
             key={tab.id}
             className={`
-              group relative flex items-center space-x-2 px-4 lg:px-6 py-4
-              text-sm font-semibold transition-all duration-300 
+              group relative flex items-center space-x-2 px-6 lg:px-6 py-5 lg:py-4
+              text-base lg:text-sm font-semibold transition-all duration-300 
               border-b-3 whitespace-nowrap min-w-0 flex-shrink-0
+              touch-manipulation active:scale-95 lg:hover:scale-[1.02]
               hover:bg-gradient-to-b hover:from-white/50 hover:to-transparent
               dark:hover:from-gray-800/50 dark:hover:to-transparent dark:bg-gray-800/80
+              min-h-[64px] lg:min-h-[56px] focus:outline-none
               ${activeTab === tab.id 
                 ? `text-blue-600 dark:text-blue-400 border-blue-500 
                    bg-gradient-to-b from-white to-blue-50/30 
                    dark:from-gray-800 dark:to-blue-900/30
-                   shadow-lg` 
+                   shadow-lg ring-2 ring-blue-300/20 dark:ring-blue-700/30` 
                 : `text-gray-700 dark:text-gray-300 border-transparent 
                    hover:text-gray-900 dark:hover:text-white
                    hover:border-gray-400 dark:hover:border-gray-500
@@ -302,18 +304,20 @@ const ResponseTabs: React.FC<{
               <div className={`transition-all duration-300 ${
                 activeTab === tab.id ? 'text-blue-500 dark:text-blue-400 scale-110' : 'group-hover:scale-105'
               }`}>
-                {tab.icon}
+                <div className="w-5 h-5 lg:w-4 lg:h-4">
+                  {tab.icon}
+                </div>
               </div>
               
-              <span className="font-bold tracking-wide">{tab.label}</span>
+              <span className="font-bold tracking-wide truncate">{tab.label}</span>
               
               {/* Emoji badge for visual appeal */}
-              <span className="text-xs opacity-70">{tab.badge}</span>
+              <span className="text-sm lg:text-xs opacity-70">{tab.badge}</span>
             </div>
 
             {/* Active tab indicator line */}
             {activeTab === tab.id && (
-              <div className="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-400"></div>
+              <div className="absolute bottom-0 inset-x-0 h-1 lg:h-0.5 bg-gradient-to-r from-blue-500 to-blue-400 rounded-t-sm"></div>
             )}
           </button>
         ))}
