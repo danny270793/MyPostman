@@ -27,6 +27,7 @@ export const useRequest = () => {
       url: currentRequest.url,
       method: currentRequest.method,
       headers: currentRequest.headers,
+      params: currentRequest.params,
       body: currentRequest.body ? JSON.parse(currentRequest.body) : undefined
     }))
   }
@@ -40,6 +41,7 @@ export const useRequest = () => {
       url: currentRequest.url,
       method: currentRequest.method,
       headers: currentRequest.headers,
+      params: currentRequest.params,
       body: currentRequest.body
     }))
   }
@@ -54,6 +56,10 @@ export const useRequest = () => {
 
   const updateHeaders = (headers: Record<string, string>) => {
     dispatch(requestSlice.actions.setHeaders(headers))
+  }
+
+  const updateParams = (params: Record<string, string>) => {
+    dispatch(requestSlice.actions.setParams(params))
   }
 
   const updateBody = (body: string) => {
@@ -85,6 +91,7 @@ export const useRequest = () => {
     updateMethod,
     updateUrl,
     updateHeaders,
+    updateParams,
     updateBody,
     
     // Computed values
