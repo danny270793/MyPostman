@@ -375,11 +375,6 @@ const ResponseBody: React.FC<{ data: any; size: number }> = ({ data, size }) => 
         <pre className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-2 border-gray-200/50 dark:border-gray-600/50 rounded-2xl p-4 lg:p-6 font-mono text-xs lg:text-sm text-gray-900 dark:text-gray-100 overflow-auto whitespace-pre-wrap break-words shadow-lg hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300 leading-relaxed max-h-[40vh] lg:max-h-none">
           {formattedData}
         </pre>
-        
-        {/* Size indicator */}
-        <div className="absolute top-4 right-4 bg-gray-100/80 dark:bg-gray-700/80 backdrop-blur-sm px-2 py-1 rounded-lg text-xs text-gray-600 dark:text-gray-400 font-medium">
-          {formatSize(size)}
-        </div>
       </div>
     </div>
   )
