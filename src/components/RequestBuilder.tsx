@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { ActiveTab } from '../hooks/useUIState'
 import { useRequest } from '../hooks/useRequest'
 import { getMethodColors } from '../utils/colors'
@@ -452,6 +452,8 @@ const HeadersKeyValue: React.FC<{
   headers: Record<string, string>
   onChange: (headers: Record<string, string>) => void
 }> = ({ headers, onChange }) => {
+  // Ref to track if we're updating internally or from external props
+  const isInternalUpdate = useRef(false)
   
   // Convert headers object to array of HeaderKeyValue
   const [headersList, setHeadersList] = useState<HeaderKeyValue[]>(() => {
@@ -466,6 +468,12 @@ const HeadersKeyValue: React.FC<{
 
   // Update headersList when headers prop changes (only from external sources)
   useEffect(() => {
+    // Skip update if it's from our own internal update
+    if (isInternalUpdate.current) {
+      isInternalUpdate.current = false
+      return
+    }
+    
     const entries = Object.entries(headers || {}).map(([key, value], index) => ({
       id: `header-${index}`,
       key,
@@ -474,11 +482,21 @@ const HeadersKeyValue: React.FC<{
     }))
     
     // Only update if we have valid headers from external source (like loading a saved request)
-    // Don't interfere with local editing state
+    // or if it's completely different from current state
     if (entries.length > 0) {
-      setHeadersList(entries)
+      const currentValidHeaders = headersList.filter(h => h.enabled && h.key.trim() && h.value.trim())
+      const isDifferent = entries.length !== currentValidHeaders.length || 
+                         entries.some((entry, index) => 
+                           !currentValidHeaders[index] || 
+                           currentValidHeaders[index].key !== entry.key ||
+                           currentValidHeaders[index].value !== entry.value
+                         )
+      
+      if (isDifferent) {
+        setHeadersList(entries)
+      }
     }
-  }, [headers])
+  }, [headers, headersList])
 
   // Convert headersList back to headers object and call onChange
   const updateHeaders = (newHeadersList: HeaderKeyValue[]) => {
@@ -491,6 +509,8 @@ const HeadersKeyValue: React.FC<{
       }
     })
     
+    // Mark this as an internal update to prevent useEffect from overriding
+    isInternalUpdate.current = true
     onChange(headersObject)
   }
 
@@ -647,6 +667,8 @@ const ParamsKeyValue: React.FC<{
   params: Record<string, string>
   onChange: (params: Record<string, string>) => void
 }> = ({ params, onChange }) => {
+  // Ref to track if we're updating internally or from external props
+  const isInternalUpdate = useRef(false)
   
   // Convert params object to array of ParamKeyValue
   const [paramsList, setParamsList] = useState<ParamKeyValue[]>(() => {
@@ -661,6 +683,12 @@ const ParamsKeyValue: React.FC<{
 
   // Update paramsList when params prop changes (only from external sources)
   useEffect(() => {
+    // Skip update if it's from our own internal update
+    if (isInternalUpdate.current) {
+      isInternalUpdate.current = false
+      return
+    }
+    
     const entries = Object.entries(params || {}).map(([key, value], index) => ({
       id: `param-${index}`,
       key,
@@ -669,11 +697,21 @@ const ParamsKeyValue: React.FC<{
     }))
     
     // Only update if we have valid params from external source (like loading a saved request)
-    // Don't interfere with local editing state
+    // or if it's completely different from current state
     if (entries.length > 0) {
-      setParamsList(entries)
+      const currentValidParams = paramsList.filter(p => p.enabled && p.key.trim() && p.value.trim())
+      const isDifferent = entries.length !== currentValidParams.length || 
+                         entries.some((entry, index) => 
+                           !currentValidParams[index] || 
+                           currentValidParams[index].key !== entry.key ||
+                           currentValidParams[index].value !== entry.value
+                         )
+      
+      if (isDifferent) {
+        setParamsList(entries)
+      }
     }
-  }, [params])
+  }, [params, paramsList])
 
   // Convert paramsList back to params object and call onChange
   const updateParams = (newParamsList: ParamKeyValue[]) => {
@@ -686,7 +724,8 @@ const ParamsKeyValue: React.FC<{
       }
     })
     
-    // Always call onChange, even if empty - the parent component needs to know the current state
+    // Mark this as an internal update to prevent useEffect from overriding
+    isInternalUpdate.current = true
     onChange(paramsObject)
   }
 
