@@ -370,7 +370,7 @@ const RequestTabs: React.FC<{
   return (
     <div className="relative bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border-b border-gray-200/50 dark:border-gray-700/50">
       {/* Mobile scroll hint */}
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50 dark:from-gray-800 to-transparent pointer-events-none lg:hidden z-10"></div>
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white via-gray-50 dark:from-gray-800 dark:via-gray-800 to-transparent pointer-events-none lg:hidden z-10"></div>
       
       <div className="flex overflow-x-auto scrollbar-none overscroll-x-contain">
         {tabs.map((tab, index) => (
@@ -381,18 +381,21 @@ const RequestTabs: React.FC<{
               text-base lg:text-sm font-semibold transition-all duration-300 
               border-b-3 whitespace-nowrap min-w-0 flex-shrink-0
               touch-manipulation active:scale-95 lg:hover:scale-[1.02]
-              hover:bg-gradient-to-b hover:from-white/50 hover:to-transparent
-              dark:hover:from-gray-800/50 dark:hover:to-transparent dark:bg-gray-800/80
+              bg-white/50 dark:bg-gray-800/80 backdrop-blur-sm
+              hover:bg-gradient-to-b hover:from-white hover:to-gray-50/80
+              dark:hover:from-gray-800/80 dark:hover:to-gray-700/50
               min-h-[64px] lg:min-h-[56px] focus:outline-none
               ${activeTab === tab.id 
                 ? `text-postman-orange border-postman-orange 
-                   bg-gradient-to-b from-white to-gray-50/50 
+                   bg-gradient-to-b from-white to-gray-50/80 
                    dark:from-gray-800 dark:to-gray-700/50
-                   shadow-lg ring-2 ring-postman-orange/20` 
+                   shadow-lg ring-2 ring-postman-orange/20
+                   border-postman-orange/50` 
                 : `text-gray-700 dark:text-gray-300 border-transparent 
                    hover:text-gray-900 dark:hover:text-white
-                   hover:border-gray-400 dark:hover:border-gray-500
-                   hover:bg-gray-50/30 dark:hover:bg-gray-700/20`
+                   hover:border-gray-300 dark:hover:border-gray-500
+                   hover:bg-white/80 dark:hover:bg-gray-700/30
+                   border-gray-200/30 dark:border-gray-600/30`
               }
             `}
             onClick={() => onTabChange(tab.id)}
@@ -400,7 +403,7 @@ const RequestTabs: React.FC<{
           >
             {/* Active tab glow effect */}
             {activeTab === tab.id && (
-              <div className="absolute inset-0 bg-gradient-to-r from-postman-orange/5 to-transparent rounded-t-lg"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-postman-orange/8 via-postman-orange/4 to-transparent rounded-t-lg"></div>
             )}
             
             <div className="relative z-10 flex items-center space-x-2">
