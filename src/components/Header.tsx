@@ -34,7 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
             className={`group relative p-3 lg:p-2 rounded-2xl lg:rounded-xl transition-all duration-300 transform touch-manipulation active:scale-95 lg:hover:scale-110 focus:scale-110 focus-ring min-w-[48px] min-h-[48px] lg:min-w-[40px] lg:min-h-[40px] ${
               sidebarOpen 
                 ? 'bg-postman-orange text-white shadow-lg shadow-postman-orange/25' 
-                : 'text-gray-600 dark:text-gray-300 hover:text-postman-orange dark:hover:text-postman-orange hover:bg-postman-orange/10 dark:hover:bg-postman-orange/20'
+                : 'bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 text-gray-700 dark:text-gray-300 hover:text-postman-orange dark:hover:text-postman-orange hover:bg-postman-orange/10 dark:hover:bg-postman-orange/20 hover:border-postman-orange/30 dark:hover:border-postman-orange/50 shadow-sm hover:shadow-md'
             }`}
             onClick={onToggleSidebar}
             aria-label={sidebarOpen ? t('sidebar.close') : t('sidebar.open')}
