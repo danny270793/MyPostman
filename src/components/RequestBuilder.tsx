@@ -1104,6 +1104,8 @@ const BodyTab: React.FC<{
   label: string
   headers: Record<string, string>
 }> = ({ value, onChange, label, headers }) => {
+  const { t } = useTranslation()
+  
   // Content-Type detection
   const getContentType = () => {
     const contentType = Object.entries(headers).find(
@@ -1462,14 +1464,14 @@ const BodyTab: React.FC<{
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span className="text-xs text-green-600 dark:text-green-400 font-medium">
-                    Valid {formatInfo.name}
+                    {t('validation.valid', { format: formatInfo.name })}
                   </span>
                 </div>
               ) : (
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                   <span className="text-xs text-red-600 dark:text-red-400 font-medium">
-                    Invalid {formatInfo.name}
+                    {t('validation.invalid', { format: formatInfo.name })}
                   </span>
                 </div>
               )}

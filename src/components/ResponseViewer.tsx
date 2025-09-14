@@ -192,18 +192,18 @@ const ErrorDisplay: React.FC<{ error: any }> = ({ error }) => {
               {t('response.error')}
             </h3>
             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-800/30 text-red-800 dark:text-red-200">
-              Failed
+              {t('response.failed')}
             </span>
           </div>
           <div className="space-y-3">
             <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 border border-red-200/30 dark:border-red-700/30">
               <p className="text-sm text-red-700 dark:text-red-300">
-                <span className="font-semibold">Message:</span> {error.message}
+                <span className="font-semibold">{t('response.errorMessage')}</span> {error.message}
               </p>
             </div>
             <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 border border-red-200/30 dark:border-red-700/30">
               <p className="text-sm text-red-700 dark:text-red-300">
-                <span className="font-semibold">Status:</span> {error.status}
+                <span className="font-semibold">{t('response.errorStatus')}</span> {error.status}
               </p>
             </div>
           </div>
@@ -215,7 +215,7 @@ const ErrorDisplay: React.FC<{ error: any }> = ({ error }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p className="text-xs text-blue-700 dark:text-blue-300">
-                Try checking your URL, network connection, or server availability
+                {t('response.errorSuggestion')}
               </p>
             </div>
           </div>
@@ -254,7 +254,7 @@ const ResponseTabs: React.FC<{
     },
     { 
       id: 'cookies' as ResponseTab, 
-      label: 'Cookies',
+      label: t('response.cookies'),
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
@@ -358,6 +358,7 @@ const ResponseContent: React.FC<{
 }
 
 const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size: number }> = ({ data, headers }) => {
+  const { t } = useTranslation()
   const [displayData, setDisplayData] = useState(() => {
     // Show raw data by default
     return typeof data === 'string' ? data : JSON.stringify(data)
@@ -532,13 +533,13 @@ const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size:
   // Format info for UI
   const getFormatInfo = () => {
     const formatMap = {
-      'json': { name: 'JSON', color: 'green', icon: '{}' },
-      'xml': { name: 'XML', color: 'blue', icon: '</>' },
-      'html': { name: 'HTML', color: 'red', icon: '<>' },
-      'css': { name: 'CSS', color: 'purple', icon: '#' },
-      'javascript': { name: 'JavaScript', color: 'yellow', icon: 'JS' },
-      'yaml': { name: 'YAML', color: 'emerald', icon: 'YML' },
-      'text': { name: 'Text', color: 'gray', icon: 'TXT' }
+      'json': { name: t('response.formats.json'), color: 'green', icon: '{}' },
+      'xml': { name: t('response.formats.xml'), color: 'blue', icon: '</>' },
+      'html': { name: t('response.formats.html'), color: 'red', icon: '<>' },
+      'css': { name: t('response.formats.css'), color: 'purple', icon: '#' },
+      'javascript': { name: t('response.formats.javascript'), color: 'yellow', icon: 'JS' },
+      'yaml': { name: t('response.formats.yaml'), color: 'emerald', icon: 'YML' },
+      'text': { name: t('response.formats.text'), color: 'gray', icon: 'TXT' }
     }
     return formatMap[contentType] || formatMap.text
   }
@@ -568,7 +569,7 @@ const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size:
             </svg>
           </div>
           <label className="text-sm font-bold text-gray-700 dark:text-gray-300">
-            Response Body
+            {t('response.body')}
           </label>
           <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${formatInfo.color}-100 dark:bg-${formatInfo.color}-900/30 text-${formatInfo.color}-800 dark:text-${formatInfo.color}-200`}>
             {formatInfo.name}
@@ -588,7 +589,7 @@ const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size:
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                 }`}
               >
-                Raw
+                {t('response.raw')}
               </button>
               <button
                 onClick={prettifyResponse}
@@ -599,7 +600,7 @@ const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size:
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
                 }`}
               >
-                Pretty
+                {t('response.pretty')}
               </button>
             </div>
           )}
@@ -689,6 +690,7 @@ const ResponseCookies: React.FC = () => {
 }
 
 const CopyButton: React.FC<{ data: string }> = ({ data }) => {
+  const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -721,7 +723,7 @@ const CopyButton: React.FC<{ data: string }> = ({ data }) => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
         )}
       </svg>
-      <span>{copied ? 'Copied!' : 'Copy'}</span>
+      <span>{copied ? t('response.copied') : t('response.copy')}</span>
     </button>
   )
 }
@@ -746,14 +748,14 @@ const EmptyState: React.FC = () => {
       </h3>
       
       <p className="text-gray-500 dark:text-gray-400 text-base mb-8 max-w-md">
-        Send a request to see the response here. The response data, headers, and cookies will be displayed in organized tabs.
+        {t('response.noResponseDesc')}
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl">
         {[
-          { icon: '📄', title: 'Response Body', desc: 'JSON, XML, HTML data' },
-          { icon: '📋', title: 'Headers', desc: 'HTTP response headers' },
-          { icon: '🍪', title: 'Cookies', desc: 'Session cookies' }
+          { icon: '📄', title: t('response.emptyState.features.0.title'), desc: t('response.emptyState.features.0.description') },
+          { icon: '📋', title: t('response.emptyState.features.1.title'), desc: t('response.emptyState.features.1.description') },
+          { icon: '🍪', title: t('response.emptyState.features.2.title'), desc: t('response.emptyState.features.2.description') }
         ].map((item, index) => (
           <div 
             key={index} 
