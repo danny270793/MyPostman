@@ -44,7 +44,7 @@ export const ResponseViewer: React.FC<ResponseViewerProps> = ({
   const { response, error, hasResponse, hasError } = useRequest()
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden lg:overflow-y-auto lg:max-h-full">
+    <div className="flex-1 flex flex-col overflow-hidden">
       {/* Response Header */}
       <ResponseHeader response={response} />
 
@@ -328,8 +328,8 @@ const ResponseContent: React.FC<{
   activeTab: ResponseTab
 }> = ({ response, activeTab }) => {
   return (
-    <div className="flex-1 overflow-hidden">
-      <div className="h-full max-h-[60vh] lg:max-h-full overflow-y-auto custom-scrollbar p-4 lg:p-6 bg-gradient-to-b from-white via-gray-50/30 to-white dark:from-gray-900 dark:via-gray-800/30 dark:to-gray-900">
+    <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-6 bg-gradient-to-b from-white via-gray-50/30 to-white dark:from-gray-900 dark:via-gray-800/30 dark:to-gray-900">
         <div className="animate-[fadeIn_0.3s_ease-out]">
           {activeTab === 'body' && (
             <ResponseBody data={response.data} size={response.responseSize} />
@@ -348,7 +348,7 @@ const ResponseContent: React.FC<{
   )
 }
 
-const ResponseBody: React.FC<{ data: any; size: number }> = ({ data, size }) => {
+const ResponseBody: React.FC<{ data: any; size: number }> = ({ data }) => {
   const formattedData = formatJSON(data)
 
   return (
