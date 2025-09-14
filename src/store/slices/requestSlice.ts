@@ -22,6 +22,7 @@ export interface RequestHistoryItem {
   method: string;
   headers: Record<string, string>;
   params: Record<string, string>;
+  authorization: Authorization;
   body?: any;
   response: any;
   status: number;
@@ -35,6 +36,7 @@ export interface SavedRequest {
   method: string;
   headers: Record<string, string>;
   params: Record<string, string>;
+  authorization: Authorization;
   body?: any;
   description?: string;
   tags?: string[];
@@ -48,12 +50,23 @@ export interface Notification {
   isVisible: boolean;
 }
 
+export interface Authorization {
+  type: 'none' | 'bearer' | 'basic' | 'apikey';
+  token?: string;
+  username?: string;
+  password?: string;
+  key?: string;
+  value?: string;
+  addTo?: 'header' | 'query';
+}
+
 interface RequestState {
   currentRequest: {
     url: string;
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     headers: Record<string, string>;
     params: Record<string, string>;
+    authorization: Authorization;
     body: string;
   };
   response: RequestResponse | null;
@@ -70,6 +83,9 @@ const initialState: RequestState = {
     method: 'GET',
     headers: {},
     params: {},
+    authorization: {
+      type: 'none'
+    },
     body: '',
   },
   response: null,
@@ -112,6 +128,9 @@ export const requestSlice = createSlice({
     },
     removeParam: (state, action: PayloadAction<string>) => {
       delete state.currentRequest.params[action.payload];
+    },
+    setAuthorization: (state, action: PayloadAction<Authorization>) => {
+      state.currentRequest.authorization = action.payload;
     },
     setBody: (state, action: PayloadAction<string>) => {
       state.currentRequest.body = action.payload;
@@ -201,6 +220,7 @@ export const requestSlice = createSlice({
           method: savedRequest.method as any,
           headers: savedRequest.headers,
           params: savedRequest.params,
+          authorization: savedRequest.authorization,
           body: savedRequest.body ? JSON.stringify(savedRequest.body, null, 2) : '',
         };
       }
@@ -215,6 +235,7 @@ export const requestSlice = createSlice({
           method: historyItem.method as any,
           headers: historyItem.headers,
           params: historyItem.params,
+          authorization: historyItem.authorization,
           body: historyItem.body ? JSON.stringify(historyItem.body, null, 2) : '',
         };
       }
