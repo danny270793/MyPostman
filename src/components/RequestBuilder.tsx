@@ -340,15 +340,16 @@ const RequestTabs: React.FC<{
               text-sm font-semibold transition-all duration-300 
               border-b-3 whitespace-nowrap min-w-0 flex-shrink-0
               hover:bg-gradient-to-b hover:from-white/50 hover:to-transparent
-              dark:hover:from-gray-800/50 dark:hover:to-transparent
+              dark:hover:from-gray-800/50 dark:hover:to-transparent dark:bg-gray-800/80
               ${activeTab === tab.id 
                 ? `text-postman-orange border-postman-orange 
                    bg-gradient-to-b from-white to-gray-50/50 
-                   dark:from-gray-900 dark:to-gray-800/50
+                   dark:from-gray-800 dark:to-gray-700/50
                    shadow-lg` 
-                : `text-gray-600 dark:text-gray-400 border-transparent 
-                   hover:text-gray-900 dark:hover:text-gray-100
-                   hover:border-gray-300 dark:hover:border-gray-600`
+                : `text-gray-700 dark:text-gray-300 border-transparent 
+                   hover:text-gray-900 dark:hover:text-white
+                   hover:border-gray-400 dark:hover:border-gray-500
+                   hover:bg-gray-50/30 dark:hover:bg-gray-700/20`
               }
             `}
             onClick={() => onTabChange(tab.id)}
@@ -468,7 +469,7 @@ const BodyTab: React.FC<{
 const ComingSoonTab: React.FC<{ icon: string }> = ({ icon }) => {
   return (
     <div className="text-center py-8">
-      <div className="text-4xl text-gray-400 mb-2">{icon}</div>
+      <div className="text-4xl text-gray-400 dark:text-gray-400 mb-2">{icon}</div>
       <p className="text-gray-500 dark:text-gray-400">Coming soon...</p>
     </div>
   )

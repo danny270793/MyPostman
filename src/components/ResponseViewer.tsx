@@ -252,15 +252,16 @@ const ResponseTabs: React.FC<{
               text-sm font-semibold transition-all duration-300 
               border-b-3 whitespace-nowrap min-w-0 flex-shrink-0
               hover:bg-gradient-to-b hover:from-white/50 hover:to-transparent
-              dark:hover:from-gray-800/50 dark:hover:to-transparent
+              dark:hover:from-gray-800/50 dark:hover:to-transparent dark:bg-gray-800/80
               ${activeTab === tab.id 
                 ? `text-blue-600 dark:text-blue-400 border-blue-500 
                    bg-gradient-to-b from-white to-blue-50/30 
-                   dark:from-gray-900 dark:to-blue-900/20
+                   dark:from-gray-800 dark:to-blue-900/30
                    shadow-lg` 
-                : `text-gray-600 dark:text-gray-400 border-transparent 
-                   hover:text-gray-900 dark:hover:text-gray-100
-                   hover:border-gray-300 dark:hover:border-gray-600`
+                : `text-gray-700 dark:text-gray-300 border-transparent 
+                   hover:text-gray-900 dark:hover:text-white
+                   hover:border-gray-400 dark:hover:border-gray-500
+                   hover:bg-gray-50/30 dark:hover:bg-gray-700/20`
               }
             `}
             onClick={() => onTabChange(tab.id)}

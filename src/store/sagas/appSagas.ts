@@ -26,10 +26,24 @@ function* initializeAppSaga(): Generator<any, void, any> {
   try {
     yield put(appSlice.actions.setLoading(true));
     
-    // Load user preferences
+    // Load user preferences and apply theme
     const savedTheme = localStorage.getItem('mypostman_theme');
-    if (savedTheme) {
+    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
+      // Apply theme immediately to document element
+      const documentElement = document.documentElement;
+      if (savedTheme === 'dark') {
+        documentElement.classList.add('dark');
+        documentElement.setAttribute('data-theme', 'dark');
+      } else {
+        documentElement.classList.remove('dark');
+        documentElement.setAttribute('data-theme', 'light');
+      }
+      
       yield put(appSlice.actions.setTheme(savedTheme as 'light' | 'dark'));
+    } else {
+      // Default to light theme and ensure it's applied
+      document.documentElement.classList.remove('dark');
+      document.documentElement.setAttribute('data-theme', 'light');
     }
     
     // Load language preference and sync with i18n
@@ -78,12 +92,21 @@ function* updateThemeSaga(action: PayloadAction<'light' | 'dark'>): Generator<an
   try {
     localStorage.setItem('mypostman_theme', action.payload);
     
-    // Apply theme to document
-    document.documentElement.setAttribute('data-theme', action.payload);
+    // Apply theme to document element for Tailwind dark mode
+    const documentElement = document.documentElement;
+    
+    if (action.payload === 'dark') {
+      documentElement.classList.add('dark');
+      documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      documentElement.classList.remove('dark');
+      documentElement.setAttribute('data-theme', 'light');
+    }
     
     yield put(appSlice.actions.showNotification({
       type: 'success',
       message: `Theme changed to ${action.payload}`,
+      duration: 2000, // Shorter duration for theme changes
     }));
   } catch (error) {
     yield put(appSlice.actions.showNotification({
@@ -212,11 +235,44 @@ function* logErrorSaga(action: PayloadAction<string>): Generator<any, void, any>
   }
 }
 
+// Handle toggle theme saga - gets current theme and applies it
+function* handleToggleThemeSaga(): Generator<any, void, any> {
+  try {
+    const currentState: RootState = yield select();
+    const newTheme = currentState.app.theme;
+    
+    // Apply the theme directly to the document element
+    localStorage.setItem('mypostman_theme', newTheme);
+    
+    const documentElement = document.documentElement;
+    
+    if (newTheme === 'dark') {
+      documentElement.classList.add('dark');
+      documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      documentElement.classList.remove('dark');
+      documentElement.setAttribute('data-theme', 'light');
+    }
+    
+    yield put(appSlice.actions.showNotification({
+      type: 'success',
+      message: `Theme changed to ${newTheme}`,
+      duration: 2000,
+    }));
+  } catch (error) {
+    yield put(appSlice.actions.showNotification({
+      type: 'error',
+      message: 'Failed to toggle theme',
+    }));
+  }
+}
+
 // Watcher saga - listens for app-related actions
 export function* watchAppSagas(): Generator<any, void, any> {
   yield takeEvery(appSlice.actions.showNotification.type, autoHideNotificationSaga);
   yield takeLatest(appSlice.actions.initializeApp.type, initializeAppSaga);
   yield takeEvery(appSlice.actions.setTheme.type, updateThemeSaga);
+  yield takeEvery(appSlice.actions.toggleTheme.type, handleToggleThemeSaga);
   yield takeEvery(appSlice.actions.setLanguage.type, updateLanguageSaga);
   yield takeEvery(appSlice.actions.setSidebarCollapsed.type, updateSidebarSaga);
   yield takeEvery(appSlice.actions.saveEnvironmentVariables.type, saveEnvironmentVariablesSaga);
