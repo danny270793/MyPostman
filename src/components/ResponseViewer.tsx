@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import type { ResponseTab } from '../hooks/useUIState'
 import { useRequest } from '../hooks/useRequest'
 import { getStatusColors } from '../utils/colors'
-import { formatJSON } from '../utils/formatting'
 
 // Utility functions for formatting response metadata
 const formatTime = (milliseconds: number): string => {
@@ -332,7 +331,7 @@ const ResponseContent: React.FC<{
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-6 bg-gradient-to-b from-white via-gray-50/30 to-white dark:from-gray-900 dark:via-gray-800/30 dark:to-gray-900">
         <div className="animate-[fadeIn_0.3s_ease-out]">
           {activeTab === 'body' && (
-            <ResponseBody data={response.data} size={response.responseSize} />
+            <ResponseBody data={response.data} headers={response.headers} size={response.responseSize} />
           )}
           
           {activeTab === 'headers' && (
@@ -348,14 +347,205 @@ const ResponseContent: React.FC<{
   )
 }
 
-const ResponseBody: React.FC<{ data: any; size: number }> = ({ data }) => {
-  const formattedData = formatJSON(data)
+const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size: number }> = ({ data, headers }) => {
+  const [displayData, setDisplayData] = useState(() => {
+    // Show raw data by default
+    return typeof data === 'string' ? data : JSON.stringify(data)
+  })
+  const [isPrettified, setIsPrettified] = useState(false)
+  
+  // Content-Type detection for responses
+  const getResponseContentType = () => {
+    const contentType = Object.entries(headers || {}).find(
+      ([key]) => key.toLowerCase() === 'content-type'
+    )?.[1]?.toLowerCase()
+    
+    if (contentType?.includes('application/json') || contentType?.includes('text/json')) {
+      return 'json'
+    }
+    if (contentType?.includes('application/xml') || contentType?.includes('text/xml')) {
+      return 'xml'
+    }
+    if (contentType?.includes('text/html')) {
+      return 'html'
+    }
+    if (contentType?.includes('text/css')) {
+      return 'css'
+    }
+    if (contentType?.includes('application/javascript') || contentType?.includes('text/javascript')) {
+      return 'javascript'
+    }
+    if (contentType?.includes('application/yaml') || contentType?.includes('text/yaml') || contentType?.includes('application/x-yaml')) {
+      return 'yaml'
+    }
+    if (contentType?.includes('text/plain')) {
+      return 'text'
+    }
+    return 'text'
+  }
+
+  const contentType = getResponseContentType()
+
+  // Prettify functions for different formats
+  const prettifyResponse = () => {
+    const rawData = typeof data === 'string' ? data : JSON.stringify(data)
+    
+    try {
+      let prettified = rawData
+      
+      switch (contentType) {
+        case 'json':
+          try {
+            const parsed = JSON.parse(rawData)
+            prettified = JSON.stringify(parsed, null, 2)
+          } catch {
+            prettified = rawData // Keep as is if not valid JSON
+          }
+          break
+          
+        case 'xml':
+          try {
+            const parser = new DOMParser()
+            const doc = parser.parseFromString(rawData, 'application/xml')
+            const parserError = doc.querySelector('parsererror')
+            
+            if (!parserError) {
+              // Simple XML formatting
+              prettified = rawData
+                .replace(/></g, '>\n<')
+                .replace(/\n\s*\n/g, '\n')
+              
+              // Add proper indentation
+              const lines = prettified.split('\n')
+              let indentLevel = 0
+              const formattedLines = lines.map(line => {
+                const trimmed = line.trim()
+                if (!trimmed) return ''
+                
+                // Decrease indent for closing tags
+                if (trimmed.startsWith('</')) {
+                  indentLevel = Math.max(0, indentLevel - 1)
+                }
+                
+                const result = '  '.repeat(indentLevel) + trimmed
+                
+                // Increase indent for opening tags (but not self-closing)
+                if (trimmed.startsWith('<') && !trimmed.startsWith('</') && !trimmed.endsWith('/>') && !trimmed.includes('<?')) {
+                  indentLevel++
+                }
+                
+                return result
+              })
+              
+              prettified = formattedLines.filter(line => line).join('\n')
+            }
+          } catch {
+            prettified = rawData
+          }
+          break
+          
+        case 'html':
+          try {
+            prettified = rawData
+              .replace(/></g, '>\n<')
+              .split('\n')
+              .map((line) => {
+                const depth = (line.match(/</g) || []).length - (line.match(/<\//g) || []).length
+                const indent = '  '.repeat(Math.max(0, depth - 1))
+                return indent + line.trim()
+              })
+              .join('\n')
+          } catch {
+            prettified = rawData
+          }
+          break
+          
+        case 'css':
+          try {
+            prettified = rawData
+              .replace(/\s*{\s*/g, ' {\n')
+              .replace(/;\s*/g, ';\n')
+              .replace(/\s*}\s*/g, '\n}\n')
+              .replace(/,\s*/g, ',\n')
+            
+            // Add proper indentation
+            const lines = prettified.split('\n')
+            let indentLevel = 0
+            const formattedLines = lines.map(line => {
+              const trimmed = line.trim()
+              if (!trimmed) return ''
+              
+              if (trimmed === '}') {
+                indentLevel = Math.max(0, indentLevel - 1)
+              }
+              
+              const result = '  '.repeat(indentLevel) + trimmed
+              
+              if (trimmed.endsWith('{')) {
+                indentLevel++
+              }
+              
+              return result
+            })
+            
+            prettified = formattedLines.filter(line => line).join('\n')
+          } catch {
+            prettified = rawData
+          }
+          break
+          
+        default:
+          prettified = rawData
+          break
+      }
+      
+      setDisplayData(prettified)
+      setIsPrettified(true)
+    } catch (error) {
+      console.warn('Cannot prettify response:', error)
+    }
+  }
+
+  const resetToRaw = () => {
+    const rawData = typeof data === 'string' ? data : JSON.stringify(data)
+    setDisplayData(rawData)
+    setIsPrettified(false)
+  }
+
+  // Format info for UI
+  const getFormatInfo = () => {
+    const formatMap = {
+      'json': { name: 'JSON', color: 'green', icon: '{}' },
+      'xml': { name: 'XML', color: 'blue', icon: '</>' },
+      'html': { name: 'HTML', color: 'red', icon: '<>' },
+      'css': { name: 'CSS', color: 'purple', icon: '#' },
+      'javascript': { name: 'JavaScript', color: 'yellow', icon: 'JS' },
+      'yaml': { name: 'YAML', color: 'emerald', icon: 'YML' },
+      'text': { name: 'Text', color: 'gray', icon: 'TXT' }
+    }
+    return formatMap[contentType] || formatMap.text
+  }
+
+  const formatInfo = getFormatInfo()
+
+  const getColorClasses = (color: string) => {
+    const colorMap = {
+      'green': 'from-green-500 to-green-600',
+      'blue': 'from-blue-500 to-blue-600', 
+      'red': 'from-red-500 to-red-600',
+      'purple': 'from-purple-500 to-purple-600',
+      'yellow': 'from-yellow-500 to-yellow-600',
+      'emerald': 'from-emerald-500 to-emerald-600',
+      'gray': 'from-gray-500 to-gray-600'
+    }
+    return colorMap[color as keyof typeof colorMap] || colorMap.green
+  }
 
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between space-y-2 sm:space-y-0">
         <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-lg">
+          <div className={`w-6 h-6 bg-gradient-to-br ${getColorClasses(formatInfo.color)} rounded-lg flex items-center justify-center shadow-lg`}>
             <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
@@ -363,17 +553,48 @@ const ResponseBody: React.FC<{ data: any; size: number }> = ({ data }) => {
           <label className="text-sm font-bold text-gray-700 dark:text-gray-300">
             Response Body
           </label>
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200">
-            JSON
+          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${formatInfo.color}-100 dark:bg-${formatInfo.color}-900/30 text-${formatInfo.color}-800 dark:text-${formatInfo.color}-200`}>
+            {formatInfo.name}
           </span>
         </div>
-        <CopyButton data={formattedData} />
+        
+        <div className="flex items-center space-x-2">
+          {/* Prettify/Raw Toggle Buttons */}
+          {contentType !== 'text' && (
+            <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+              <button
+                onClick={resetToRaw}
+                disabled={!isPrettified}
+                className={`px-2 py-1 text-xs font-medium rounded transition-colors duration-200 ${
+                  !isPrettified 
+                    ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                }`}
+              >
+                Raw
+              </button>
+              <button
+                onClick={prettifyResponse}
+                disabled={isPrettified}
+                className={`px-2 py-1 text-xs font-medium rounded transition-colors duration-200 ${
+                  isPrettified 
+                    ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                }`}
+              >
+                Pretty
+              </button>
+            </div>
+          )}
+          
+          <CopyButton data={displayData} />
+        </div>
       </div>
       
       <div className="relative group">
-        <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-blue-500/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        <pre className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-2 border-gray-200/50 dark:border-gray-600/50 rounded-2xl p-4 lg:p-6 font-mono text-xs lg:text-sm text-gray-900 dark:text-gray-100 overflow-auto whitespace-pre-wrap break-words shadow-lg hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300 leading-relaxed max-h-[40vh] lg:max-h-none">
-          {formattedData}
+        <div className={`absolute inset-0 bg-gradient-to-r from-${formatInfo.color}-500/5 to-blue-500/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`}></div>
+        <pre className={`relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-2 border-gray-200/50 dark:border-gray-600/50 rounded-2xl p-4 lg:p-6 font-mono text-xs lg:text-sm text-gray-900 dark:text-gray-100 overflow-auto whitespace-pre-wrap break-words shadow-lg hover:shadow-xl hover:shadow-${formatInfo.color}-500/10 transition-all duration-300 leading-relaxed max-h-[40vh] lg:max-h-none`}>
+          {displayData}
         </pre>
       </div>
     </div>
