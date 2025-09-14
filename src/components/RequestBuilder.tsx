@@ -464,7 +464,7 @@ const HeadersKeyValue: React.FC<{
     return entries.length > 0 ? entries : [{ id: 'header-0', key: '', value: '', enabled: true }]
   })
 
-  // Update headersList when headers prop changes
+  // Update headersList when headers prop changes (only from external sources)
   useEffect(() => {
     const entries = Object.entries(headers || {}).map(([key, value], index) => ({
       id: `header-${index}`,
@@ -472,9 +472,10 @@ const HeadersKeyValue: React.FC<{
       value,
       enabled: true
     }))
-    if (entries.length === 0) {
-      setHeadersList([{ id: 'header-0', key: '', value: '', enabled: true }])
-    } else {
+    
+    // Only update if we have valid headers from external source (like loading a saved request)
+    // Don't interfere with local editing state
+    if (entries.length > 0) {
       setHeadersList(entries)
     }
   }, [headers])
@@ -658,7 +659,7 @@ const ParamsKeyValue: React.FC<{
     return entries.length > 0 ? entries : [{ id: 'param-0', key: '', value: '', enabled: true }]
   })
 
-  // Update paramsList when params prop changes
+  // Update paramsList when params prop changes (only from external sources)
   useEffect(() => {
     const entries = Object.entries(params || {}).map(([key, value], index) => ({
       id: `param-${index}`,
@@ -666,9 +667,10 @@ const ParamsKeyValue: React.FC<{
       value,
       enabled: true
     }))
-    if (entries.length === 0) {
-      setParamsList([{ id: 'param-0', key: '', value: '', enabled: true }])
-    } else {
+    
+    // Only update if we have valid params from external source (like loading a saved request)
+    // Don't interfere with local editing state
+    if (entries.length > 0) {
       setParamsList(entries)
     }
   }, [params])
@@ -684,6 +686,7 @@ const ParamsKeyValue: React.FC<{
       }
     })
     
+    // Always call onChange, even if empty - the parent component needs to know the current state
     onChange(paramsObject)
   }
 
