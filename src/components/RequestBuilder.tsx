@@ -394,16 +394,6 @@ const RequestTabs: React.FC<{
               </div>
               
               <span className="font-bold tracking-wide">{tab.label}</span>
-              
-              {/* Coming soon badge for params and auth */}
-              {(tab.id === 'params' || tab.id === 'auth') && (
-                <div className="flex items-center space-x-1">
-                  <span className="text-xs">{tab.badge}</span>
-                  <span className="px-1.5 py-0.5 bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200 text-xs font-bold rounded-full">
-                    Soon
-                  </span>
-                </div>
-              )}
             </div>
 
             {/* Active tab indicator line */}
