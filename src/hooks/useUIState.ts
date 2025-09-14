@@ -11,7 +11,7 @@ export const useUIState = () => {
   const [activeTab, setActiveTab] = useState<ActiveTab>('headers')
   const [responseTab, setResponseTab] = useState<ResponseTab>('body')
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>('history')
-  const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   return {
     // Request tabs
