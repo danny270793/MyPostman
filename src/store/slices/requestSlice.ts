@@ -21,6 +21,7 @@ export interface RequestHistoryItem {
   url: string;
   method: string;
   headers: Record<string, string>;
+  params: Record<string, string>;
   body?: any;
   response: any;
   status: number;
@@ -33,6 +34,7 @@ export interface SavedRequest {
   url: string;
   method: string;
   headers: Record<string, string>;
+  params: Record<string, string>;
   body?: any;
   description?: string;
   tags?: string[];
@@ -51,6 +53,7 @@ interface RequestState {
     url: string;
     method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     headers: Record<string, string>;
+    params: Record<string, string>;
     body: string;
   };
   response: RequestResponse | null;
@@ -66,6 +69,7 @@ const initialState: RequestState = {
     url: '',
     method: 'GET',
     headers: {},
+    params: {},
     body: '',
   },
   response: null,
@@ -99,6 +103,15 @@ export const requestSlice = createSlice({
     },
     removeHeader: (state, action: PayloadAction<string>) => {
       delete state.currentRequest.headers[action.payload];
+    },
+    setParams: (state, action: PayloadAction<Record<string, string>>) => {
+      state.currentRequest.params = action.payload;
+    },
+    addParam: (state, action: PayloadAction<{ key: string; value: string }>) => {
+      state.currentRequest.params[action.payload.key] = action.payload.value;
+    },
+    removeParam: (state, action: PayloadAction<string>) => {
+      delete state.currentRequest.params[action.payload];
     },
     setBody: (state, action: PayloadAction<string>) => {
       state.currentRequest.body = action.payload;
@@ -187,6 +200,7 @@ export const requestSlice = createSlice({
           url: savedRequest.url,
           method: savedRequest.method as any,
           headers: savedRequest.headers,
+          params: savedRequest.params,
           body: savedRequest.body ? JSON.stringify(savedRequest.body, null, 2) : '',
         };
       }
@@ -200,6 +214,7 @@ export const requestSlice = createSlice({
           url: historyItem.url,
           method: historyItem.method as any,
           headers: historyItem.headers,
+          params: historyItem.params,
           body: historyItem.body ? JSON.stringify(historyItem.body, null, 2) : '',
         };
       }
