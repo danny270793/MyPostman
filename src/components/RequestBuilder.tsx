@@ -34,7 +34,7 @@ export const RequestBuilder: React.FC<RequestBuilderProps> = ({
   }
 
   return (
-    <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+    <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 lg:border-b-0 lg:border-r lg:max-h-full lg:overflow-y-auto">
       {/* URL Bar */}
       <URLBar 
         method={currentRequest.method}
@@ -401,7 +401,7 @@ const TabContent: React.FC<{
   const { t } = useTranslation()
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-900">
+    <div className="p-4 bg-white dark:bg-gray-900 max-h-[50vh] lg:max-h-none overflow-y-auto lg:overflow-y-visible">
       {activeTab === 'headers' && (
         <HeadersTab 
           value={headers}

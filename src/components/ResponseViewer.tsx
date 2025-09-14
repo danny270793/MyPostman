@@ -44,7 +44,7 @@ export const ResponseViewer: React.FC<ResponseViewerProps> = ({
   const { response, error, hasResponse, hasError } = useRequest()
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex-1 flex flex-col overflow-hidden lg:max-h-full">
       {/* Response Header */}
       <ResponseHeader response={response} />
 
@@ -329,7 +329,7 @@ const ResponseContent: React.FC<{
 }> = ({ response, activeTab }) => {
   return (
     <div className="flex-1 overflow-hidden">
-      <div className="h-full overflow-y-auto custom-scrollbar p-4 lg:p-6 bg-gradient-to-b from-white via-gray-50/30 to-white dark:from-gray-900 dark:via-gray-800/30 dark:to-gray-900">
+      <div className="h-full max-h-[60vh] lg:max-h-full overflow-y-auto custom-scrollbar p-4 lg:p-6 bg-gradient-to-b from-white via-gray-50/30 to-white dark:from-gray-900 dark:via-gray-800/30 dark:to-gray-900">
         <div className="animate-[fadeIn_0.3s_ease-out]">
           {activeTab === 'body' && (
             <ResponseBody data={response.data} size={response.responseSize} />
@@ -372,7 +372,7 @@ const ResponseBody: React.FC<{ data: any; size: number }> = ({ data, size }) => 
       
       <div className="relative group">
         <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-blue-500/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        <pre className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-2 border-gray-200/50 dark:border-gray-600/50 rounded-2xl p-6 font-mono text-sm text-gray-900 dark:text-gray-100 overflow-x-auto whitespace-pre-wrap break-words shadow-lg hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300 leading-relaxed">
+        <pre className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-2 border-gray-200/50 dark:border-gray-600/50 rounded-2xl p-4 lg:p-6 font-mono text-xs lg:text-sm text-gray-900 dark:text-gray-100 overflow-auto whitespace-pre-wrap break-words shadow-lg hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300 leading-relaxed max-h-[40vh] lg:max-h-none">
           {formattedData}
         </pre>
         
