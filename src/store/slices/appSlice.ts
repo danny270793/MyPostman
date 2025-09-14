@@ -32,7 +32,7 @@ const initialState: AppState = {
   isLoading: false,
   theme: 'light',
   language: 'en',
-  sidebarCollapsed: false,
+  sidebarCollapsed: true,
   activeTab: 'request',
   environmentVariables: [],
   activeEnvironment: null,
