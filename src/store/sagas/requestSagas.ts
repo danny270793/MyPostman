@@ -8,6 +8,7 @@ interface SendRequestPayload {
   url: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
   headers?: Record<string, string>;
+  params?: Record<string, string>;
   body?: any;
 }
 
@@ -41,11 +42,23 @@ function* apiCall(url: string, options: RequestInit): Generator<any, any, any> {
 
 // Send request saga
 function* sendRequestSaga(action: PayloadAction<SendRequestPayload>): Generator<any, void, any> {
-  const { url, method, headers = {}, body } = action.payload;
+  const { url, method, headers = {}, params = {}, body } = action.payload;
   
   try {
     yield put(requestSlice.actions.setLoading(true));
     yield put(requestSlice.actions.clearError());
+    
+    // Build URL with query parameters
+    let finalUrl = url;
+    const queryParams = Object.entries(params)
+      .filter(([key, value]) => key.trim() && value.trim())
+      .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+      .join('&');
+    
+    if (queryParams) {
+      const separator = url.includes('?') ? '&' : '?';
+      finalUrl = `${url}${separator}${queryParams}`;
+    }
     
     const options: RequestInit = {
       method,
@@ -59,13 +72,13 @@ function* sendRequestSaga(action: PayloadAction<SendRequestPayload>): Generator<
       options.body = JSON.stringify(body);
     }
     
-    const result = yield call(apiCall, url, options);
+    const result = yield call(apiCall, finalUrl, options);
     
     yield put(requestSlice.actions.setResponse({
       data: result.data,
       status: result.status,
       headers: Object.fromEntries(result.headers.entries()),
-      url,
+      url: finalUrl,
       method,
       responseTime: result.responseTime,
       responseSize: result.responseSize,
@@ -73,9 +86,10 @@ function* sendRequestSaga(action: PayloadAction<SendRequestPayload>): Generator<
     
     yield put(requestSlice.actions.addToHistory({
       id: Date.now().toString(),
-      url,
+      url: finalUrl,
       method,
       headers,
+      params,
       body,
       response: result.data,
       status: result.status,
@@ -99,7 +113,7 @@ function* clearHistorySaga(): Generator<any, void, any> {
 }
 
 // Save request saga
-function* saveRequestSaga(action: PayloadAction<any>): Generator<any, void, any> {
+function* saveRequestSaga(): Generator<any, void, any> {
   try {
     // Save to localStorage or backend
     const currentState: RootState = yield select();

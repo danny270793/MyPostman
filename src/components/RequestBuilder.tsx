@@ -1,10 +1,17 @@
 import { useTranslation } from 'react-i18next'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { ActiveTab } from '../hooks/useUIState'
 import { useRequest } from '../hooks/useRequest'
 import { getMethodColors } from '../utils/colors'
 
 interface HeaderKeyValue {
+  id: string
+  key: string
+  value: string
+  enabled: boolean
+}
+
+interface ParamKeyValue {
   id: string
   key: string
   value: string
@@ -30,11 +37,16 @@ export const RequestBuilder: React.FC<RequestBuilderProps> = ({
     updateMethod,
     updateUrl,
     updateHeaders,
+    updateParams,
     updateBody
   } = useRequest()
 
   const handleHeadersChange = (headers: Record<string, string>) => {
     updateHeaders(headers)
+  }
+
+  const handleParamsChange = (params: Record<string, string>) => {
+    updateParams(params)
   }
 
   return (
@@ -61,8 +73,10 @@ export const RequestBuilder: React.FC<RequestBuilderProps> = ({
       <TabContent 
         activeTab={activeTab}
         headers={currentRequest.headers}
+        params={currentRequest.params}
         body={currentRequest.body}
         onHeadersChange={handleHeadersChange}
+        onParamsChange={handleParamsChange}
         onBodyChange={updateBody}
       />
     </div>
@@ -398,10 +412,12 @@ const RequestTabs: React.FC<{
 const TabContent: React.FC<{
   activeTab: ActiveTab
   headers: Record<string, string>
+  params: Record<string, string>
   body: string
   onHeadersChange: (headers: Record<string, string>) => void
+  onParamsChange: (params: Record<string, string>) => void
   onBodyChange: (value: string) => void
-}> = ({ activeTab, headers, body, onHeadersChange, onBodyChange }) => {
+}> = ({ activeTab, headers, params, body, onHeadersChange, onParamsChange, onBodyChange }) => {
   const { t } = useTranslation()
 
   return (
@@ -421,7 +437,12 @@ const TabContent: React.FC<{
         />
       )}
 
-      {activeTab === 'params' && <ComingSoonTab icon="🔗" />}
+      {activeTab === 'params' && (
+        <ParamsKeyValue 
+          params={params}
+          onChange={onParamsChange}
+        />
+      )}
       {activeTab === 'auth' && <ComingSoonTab icon="🔐" />}
     </div>
   )
@@ -431,6 +452,8 @@ const HeadersKeyValue: React.FC<{
   headers: Record<string, string>
   onChange: (headers: Record<string, string>) => void
 }> = ({ headers, onChange }) => {
+  // Ref to track if we're updating internally or from external props
+  const isInternalUpdate = useRef(false)
   
   // Convert headers object to array of HeaderKeyValue
   const [headersList, setHeadersList] = useState<HeaderKeyValue[]>(() => {
@@ -443,20 +466,37 @@ const HeadersKeyValue: React.FC<{
     return entries.length > 0 ? entries : [{ id: 'header-0', key: '', value: '', enabled: true }]
   })
 
-  // Update headersList when headers prop changes
+  // Update headersList when headers prop changes (only from external sources)
   useEffect(() => {
+    // Skip update if it's from our own internal update
+    if (isInternalUpdate.current) {
+      isInternalUpdate.current = false
+      return
+    }
+    
     const entries = Object.entries(headers || {}).map(([key, value], index) => ({
       id: `header-${index}`,
       key,
       value,
       enabled: true
     }))
-    if (entries.length === 0) {
-      setHeadersList([{ id: 'header-0', key: '', value: '', enabled: true }])
-    } else {
-      setHeadersList(entries)
+    
+    // Only update if we have valid headers from external source (like loading a saved request)
+    // or if it's completely different from current state
+    if (entries.length > 0) {
+      const currentValidHeaders = headersList.filter(h => h.enabled && h.key.trim() && h.value.trim())
+      const isDifferent = entries.length !== currentValidHeaders.length || 
+                         entries.some((entry, index) => 
+                           !currentValidHeaders[index] || 
+                           currentValidHeaders[index].key !== entry.key ||
+                           currentValidHeaders[index].value !== entry.value
+                         )
+      
+      if (isDifferent) {
+        setHeadersList(entries)
+      }
     }
-  }, [headers])
+  }, [headers, headersList])
 
   // Convert headersList back to headers object and call onChange
   const updateHeaders = (newHeadersList: HeaderKeyValue[]) => {
@@ -469,6 +509,8 @@ const HeadersKeyValue: React.FC<{
       }
     })
     
+    // Mark this as an internal update to prevent useEffect from overriding
+    isInternalUpdate.current = true
     onChange(headersObject)
   }
 
@@ -614,6 +656,221 @@ const HeadersKeyValue: React.FC<{
             className="mt-2 text-postman-orange hover:text-postman-orange/80 text-sm font-medium"
           >
             Add your first header
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const ParamsKeyValue: React.FC<{
+  params: Record<string, string>
+  onChange: (params: Record<string, string>) => void
+}> = ({ params, onChange }) => {
+  // Ref to track if we're updating internally or from external props
+  const isInternalUpdate = useRef(false)
+  
+  // Convert params object to array of ParamKeyValue
+  const [paramsList, setParamsList] = useState<ParamKeyValue[]>(() => {
+    const entries = Object.entries(params || {}).map(([key, value], index) => ({
+      id: `param-${index}`,
+      key,
+      value,
+      enabled: true
+    }))
+    return entries.length > 0 ? entries : [{ id: 'param-0', key: '', value: '', enabled: true }]
+  })
+
+  // Update paramsList when params prop changes (only from external sources)
+  useEffect(() => {
+    // Skip update if it's from our own internal update
+    if (isInternalUpdate.current) {
+      isInternalUpdate.current = false
+      return
+    }
+    
+    const entries = Object.entries(params || {}).map(([key, value], index) => ({
+      id: `param-${index}`,
+      key,
+      value,
+      enabled: true
+    }))
+    
+    // Only update if we have valid params from external source (like loading a saved request)
+    // or if it's completely different from current state
+    if (entries.length > 0) {
+      const currentValidParams = paramsList.filter(p => p.enabled && p.key.trim() && p.value.trim())
+      const isDifferent = entries.length !== currentValidParams.length || 
+                         entries.some((entry, index) => 
+                           !currentValidParams[index] || 
+                           currentValidParams[index].key !== entry.key ||
+                           currentValidParams[index].value !== entry.value
+                         )
+      
+      if (isDifferent) {
+        setParamsList(entries)
+      }
+    }
+  }, [params, paramsList])
+
+  // Convert paramsList back to params object and call onChange
+  const updateParams = (newParamsList: ParamKeyValue[]) => {
+    setParamsList(newParamsList)
+    
+    const paramsObject: Record<string, string> = {}
+    newParamsList.forEach(param => {
+      if (param.enabled && param.key.trim() && param.value.trim()) {
+        paramsObject[param.key.trim()] = param.value.trim()
+      }
+    })
+    
+    // Mark this as an internal update to prevent useEffect from overriding
+    isInternalUpdate.current = true
+    onChange(paramsObject)
+  }
+
+  const addParam = () => {
+    const newParam: ParamKeyValue = {
+      id: `param-${Date.now()}`,
+      key: '',
+      value: '',
+      enabled: true
+    }
+    updateParams([...paramsList, newParam])
+  }
+
+  const removeParam = (id: string) => {
+    if (paramsList.length <= 1) return // Keep at least one row
+    updateParams(paramsList.filter(p => p.id !== id))
+  }
+
+  const updateParam = (id: string, field: keyof ParamKeyValue, value: string | boolean) => {
+    updateParams(paramsList.map(p => 
+      p.id === id ? { ...p, [field]: value } : p
+    ))
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Query Parameters
+        </label>
+        <div className="flex items-center space-x-2">
+          <div className="relative">
+            <select
+              onChange={(e) => {
+                if (e.target.value) {
+                  const [key, value] = e.target.value.split('|')
+                  const newParam: ParamKeyValue = {
+                    id: `param-${Date.now()}`,
+                    key,
+                    value,
+                    enabled: true
+                  }
+                  updateParams([...paramsList, newParam])
+                  e.target.value = '' // Reset select
+                }
+              }}
+              className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 focus:ring-1 focus:ring-postman-orange"
+            >
+              <option value="">Common Params</option>
+              <option value="page|1">page: 1</option>
+              <option value="limit|10">limit: 10</option>
+              <option value="sort|name">sort: name</option>
+              <option value="order|asc">order: asc</option>
+              <option value="filter|">filter</option>
+              <option value="search|">search</option>
+            </select>
+          </div>
+          <button
+            onClick={addParam}
+            className="inline-flex items-center px-3 py-1.5 bg-postman-orange hover:bg-postman-orange/90 text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-postman-orange/50"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Param
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {paramsList.map((param, index) => (
+          <div 
+            key={param.id}
+            className="group relative bg-white/50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-600 p-3 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all duration-200"
+            style={{ animationDelay: `${index * 50}ms` }}
+          >
+            <div className="flex items-center space-x-3">
+              {/* Enable/Disable Checkbox */}
+              <div className="flex-shrink-0">
+                <input
+                  type="checkbox"
+                  checked={param.enabled}
+                  onChange={(e) => updateParam(param.id, 'enabled', e.target.checked)}
+                  className="w-4 h-4 text-postman-orange bg-white border-gray-300 rounded focus:ring-postman-orange dark:focus:ring-postman-orange dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                />
+              </div>
+
+              {/* Key Input */}
+              <div className="flex-1 min-w-0">
+                <input
+                  type="text"
+                  placeholder="e.g. page"
+                  value={param.key}
+                  onChange={(e) => updateParam(param.id, 'key', e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent transition-colors duration-200"
+                  disabled={!param.enabled}
+                />
+              </div>
+
+              {/* Value Input */}
+              <div className="flex-1 min-w-0">
+                <input
+                  type="text"
+                  placeholder="e.g. 1"
+                  value={param.value}
+                  onChange={(e) => updateParam(param.id, 'value', e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent transition-colors duration-200"
+                  disabled={!param.enabled}
+                />
+              </div>
+
+              {/* Remove Button */}
+              <div className="flex-shrink-0">
+                <button
+                  onClick={() => removeParam(param.id)}
+                  disabled={paramsList.length <= 1}
+                  className="p-1.5 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  title="Remove parameter"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Visual indicator for disabled params */}
+            {!param.enabled && (
+              <div className="absolute inset-0 bg-gray-200/50 dark:bg-gray-700/50 rounded-lg pointer-events-none opacity-60"></div>
+            )}
+          </div>
+        ))}
+      </div>
+      
+      {paramsList.length === 0 && (
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <svg className="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+          <p className="text-sm">No parameters configured</p>
+          <button
+            onClick={addParam}
+            className="mt-2 text-postman-orange hover:text-postman-orange/80 text-sm font-medium"
+          >
+            Add your first parameter
           </button>
         </div>
       )}
