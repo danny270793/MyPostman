@@ -44,7 +44,7 @@ export const ResponseViewer: React.FC<ResponseViewerProps> = ({
   const { response, error, hasResponse, hasError } = useRequest()
 
   return (
-    <div className="flex-1 flex flex-col overflow-hidden lg:max-h-full">
+    <div className="flex-1 flex flex-col overflow-hidden lg:overflow-y-auto lg:max-h-full">
       {/* Response Header */}
       <ResponseHeader response={response} />
 

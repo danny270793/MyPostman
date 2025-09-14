@@ -401,7 +401,7 @@ const TabContent: React.FC<{
   const { t } = useTranslation()
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-900 max-h-[50vh] lg:max-h-none overflow-y-auto lg:overflow-y-visible">
+    <div className="p-4 bg-white dark:bg-gray-900 max-h-[50vh] lg:max-h-none overflow-y-auto">
       {activeTab === 'headers' && (
         <HeadersTab 
           value={headers}
