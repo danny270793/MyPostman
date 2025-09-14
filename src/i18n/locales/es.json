@@ -104,5 +104,54 @@
     "saved": "Guardadas",
     "settings": "Configuración",
     "collections": "Colecciones"
+  },
+  "validation": {
+    "valid": "{{format}} Válido",
+    "invalid": "{{format}} Inválido"
+  },
+  "response": {
+    "title": "Respuesta",
+    "noResponse": "Sin Respuesta Aún",
+    "noResponseDesc": "Envía una solicitud para ver la respuesta aquí. Puedes inspeccionar los datos de respuesta, encabezados y cookies.",
+    "data": "Datos",
+    "body": "Cuerpo de Respuesta",
+    "headers": "Encabezados",
+    "cookies": "Cookies",
+    "raw": "Crudo",
+    "pretty": "Formateado",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "error": "Error de Solicitud",
+    "failed": "Falló",
+    "errorMessage": "Mensaje:",
+    "errorStatus": "Estado:",
+    "errorSuggestion": "Intenta verificar tu URL, conexión de red, o disponibilidad del servidor",
+    "formats": {
+      "json": "JSON",
+      "xml": "XML",
+      "html": "HTML",
+      "css": "CSS",
+      "javascript": "JavaScript",
+      "yaml": "YAML",
+      "text": "Texto"
+    },
+    "emptyState": {
+      "title": "Listo para Enviar",
+      "description": "Configura tu solicitud y presiona Enviar para ver la magia suceder.",
+      "features": [
+        {
+          "title": "Cuerpo de Respuesta",
+          "description": "Datos JSON, XML, HTML"
+        },
+        {
+          "title": "Encabezados",
+          "description": "Encabezados de respuesta HTTP"
+        },
+        {
+          "title": "Cookies",
+          "description": "Cookies enviadas por el servidor"
+        }
+      ]
+    }
   }
 }

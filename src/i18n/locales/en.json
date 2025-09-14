@@ -104,5 +104,54 @@
     "saved": "Saved",
     "settings": "Settings",
     "collections": "Collections"
+  },
+  "validation": {
+    "valid": "Valid {{format}}",
+    "invalid": "Invalid {{format}}"
+  },
+  "response": {
+    "title": "Response",
+    "noResponse": "No Response Yet",
+    "noResponseDesc": "Send a request to see the response here. You can inspect response data, headers, and cookies.",
+    "data": "Data",
+    "body": "Response Body",
+    "headers": "Headers",
+    "cookies": "Cookies",
+    "raw": "Raw",
+    "pretty": "Pretty",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "error": "Request Error",
+    "failed": "Failed",
+    "errorMessage": "Message:",
+    "errorStatus": "Status:",
+    "errorSuggestion": "Try checking your URL, network connection, or server availability",
+    "formats": {
+      "json": "JSON",
+      "xml": "XML",
+      "html": "HTML",
+      "css": "CSS",
+      "javascript": "JavaScript",
+      "yaml": "YAML",
+      "text": "Text"
+    },
+    "emptyState": {
+      "title": "Ready to Send",
+      "description": "Configure your request and hit Send to see the magic happen.",
+      "features": [
+        {
+          "title": "Response Body",
+          "description": "JSON, XML, HTML data"
+        },
+        {
+          "title": "Headers",
+          "description": "HTTP response headers"
+        },
+        {
+          "title": "Cookies",
+          "description": "Server-sent cookies"
+        }
+      ]
+    }
   }
 }
