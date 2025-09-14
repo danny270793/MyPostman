@@ -1,8 +1,15 @@
 import { useTranslation } from 'react-i18next'
+import { useState, useEffect } from 'react'
 import type { ActiveTab } from '../hooks/useUIState'
 import { useRequest } from '../hooks/useRequest'
 import { getMethodColors } from '../utils/colors'
-import { parseJSON, formatJSON } from '../utils/formatting'
+
+interface HeaderKeyValue {
+  id: string
+  key: string
+  value: string
+  enabled: boolean
+}
 
 interface RequestBuilderProps {
   activeTab: ActiveTab
@@ -26,15 +33,12 @@ export const RequestBuilder: React.FC<RequestBuilderProps> = ({
     updateBody
   } = useRequest()
 
-  const handleHeadersChange = (value: string) => {
-    const parsed = parseJSON(value)
-    if (parsed !== null) {
-      updateHeaders(parsed)
-    }
+  const handleHeadersChange = (headers: Record<string, string>) => {
+    updateHeaders(headers)
   }
 
   return (
-    <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
+    <div className="border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 lg:border-b-0 lg:border-r lg:max-h-full lg:overflow-y-auto">
       {/* URL Bar */}
       <URLBar 
         method={currentRequest.method}
@@ -56,7 +60,7 @@ export const RequestBuilder: React.FC<RequestBuilderProps> = ({
       {/* Tab Content */}
       <TabContent 
         activeTab={activeTab}
-        headers={formatJSON(currentRequest.headers)}
+        headers={currentRequest.headers}
         body={currentRequest.body}
         onHeadersChange={handleHeadersChange}
         onBodyChange={updateBody}
@@ -393,20 +397,19 @@ const RequestTabs: React.FC<{
 
 const TabContent: React.FC<{
   activeTab: ActiveTab
-  headers: string
+  headers: Record<string, string>
   body: string
-  onHeadersChange: (value: string) => void
+  onHeadersChange: (headers: Record<string, string>) => void
   onBodyChange: (value: string) => void
 }> = ({ activeTab, headers, body, onHeadersChange, onBodyChange }) => {
   const { t } = useTranslation()
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-900">
+    <div className="p-4 bg-white dark:bg-gray-900 max-h-[50vh] lg:max-h-none overflow-y-auto">
       {activeTab === 'headers' && (
-        <HeadersTab 
-          value={headers}
+        <HeadersKeyValue 
+          headers={headers}
           onChange={onHeadersChange}
-          label={t('request.placeholders.headers')}
         />
       )}
 
@@ -424,23 +427,196 @@ const TabContent: React.FC<{
   )
 }
 
-const HeadersTab: React.FC<{
-  value: string
-  onChange: (value: string) => void
-  label: string
-}> = ({ value, onChange, label }) => {
+const HeadersKeyValue: React.FC<{
+  headers: Record<string, string>
+  onChange: (headers: Record<string, string>) => void
+}> = ({ headers, onChange }) => {
+  
+  // Convert headers object to array of HeaderKeyValue
+  const [headersList, setHeadersList] = useState<HeaderKeyValue[]>(() => {
+    const entries = Object.entries(headers || {}).map(([key, value], index) => ({
+      id: `header-${index}`,
+      key,
+      value,
+      enabled: true
+    }))
+    return entries.length > 0 ? entries : [{ id: 'header-0', key: '', value: '', enabled: true }]
+  })
+
+  // Update headersList when headers prop changes
+  useEffect(() => {
+    const entries = Object.entries(headers || {}).map(([key, value], index) => ({
+      id: `header-${index}`,
+      key,
+      value,
+      enabled: true
+    }))
+    if (entries.length === 0) {
+      setHeadersList([{ id: 'header-0', key: '', value: '', enabled: true }])
+    } else {
+      setHeadersList(entries)
+    }
+  }, [headers])
+
+  // Convert headersList back to headers object and call onChange
+  const updateHeaders = (newHeadersList: HeaderKeyValue[]) => {
+    setHeadersList(newHeadersList)
+    
+    const headersObject: Record<string, string> = {}
+    newHeadersList.forEach(header => {
+      if (header.enabled && header.key.trim() && header.value.trim()) {
+        headersObject[header.key.trim()] = header.value.trim()
+      }
+    })
+    
+    onChange(headersObject)
+  }
+
+  const addHeader = () => {
+    const newHeader: HeaderKeyValue = {
+      id: `header-${Date.now()}`,
+      key: '',
+      value: '',
+      enabled: true
+    }
+    updateHeaders([...headersList, newHeader])
+  }
+
+  const removeHeader = (id: string) => {
+    if (headersList.length <= 1) return // Keep at least one row
+    updateHeaders(headersList.filter(h => h.id !== id))
+  }
+
+  const updateHeader = (id: string, field: keyof HeaderKeyValue, value: string | boolean) => {
+    updateHeaders(headersList.map(h => 
+      h.id === id ? { ...h, [field]: value } : h
+    ))
+  }
+
   return (
-    <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-        Request Headers (JSON format)
-      </label>
-      <textarea
-        placeholder={label}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full h-32 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-mono text-sm resize-y focus:ring-2 focus:ring-postman-orange focus:border-transparent"
-        rows={6}
-      />
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          Request Headers
+        </label>
+        <div className="flex items-center space-x-2">
+          <div className="relative">
+            <select
+              onChange={(e) => {
+                if (e.target.value) {
+                  const [key, value] = e.target.value.split('|')
+                  const newHeader: HeaderKeyValue = {
+                    id: `header-${Date.now()}`,
+                    key,
+                    value,
+                    enabled: true
+                  }
+                  updateHeaders([...headersList, newHeader])
+                  e.target.value = '' // Reset select
+                }
+              }}
+              className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 focus:ring-1 focus:ring-postman-orange"
+            >
+              <option value="">Common Headers</option>
+              <option value="Content-Type|application/json">Content-Type: application/json</option>
+              <option value="Authorization|Bearer ">Authorization: Bearer</option>
+              <option value="Accept|application/json">Accept: application/json</option>
+              <option value="User-Agent|MyPostman/1.0">User-Agent: MyPostman/1.0</option>
+              <option value="X-API-Key|">X-API-Key</option>
+              <option value="Cache-Control|no-cache">Cache-Control: no-cache</option>
+            </select>
+          </div>
+          <button
+            onClick={addHeader}
+            className="inline-flex items-center px-3 py-1.5 bg-postman-orange hover:bg-postman-orange/90 text-white text-sm font-medium rounded-lg transition-colors duration-200 focus:ring-2 focus:ring-postman-orange/50"
+          >
+            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Header
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {headersList.map((header, index) => (
+          <div 
+            key={header.id}
+            className="group relative bg-white/50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-600 p-3 hover:bg-white/80 dark:hover:bg-gray-800/80 transition-all duration-200"
+            style={{ animationDelay: `${index * 50}ms` }}
+          >
+            <div className="flex items-center space-x-3">
+              {/* Enable/Disable Checkbox */}
+              <div className="flex-shrink-0">
+                <input
+                  type="checkbox"
+                  checked={header.enabled}
+                  onChange={(e) => updateHeader(header.id, 'enabled', e.target.checked)}
+                  className="w-4 h-4 text-postman-orange bg-white border-gray-300 rounded focus:ring-postman-orange dark:focus:ring-postman-orange dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                />
+              </div>
+
+              {/* Key Input */}
+              <div className="flex-1 min-w-0">
+                <input
+                  type="text"
+                  placeholder="e.g. Content-Type"
+                  value={header.key}
+                  onChange={(e) => updateHeader(header.id, 'key', e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent transition-colors duration-200"
+                  disabled={!header.enabled}
+                />
+              </div>
+
+              {/* Value Input */}
+              <div className="flex-1 min-w-0">
+                <input
+                  type="text"
+                  placeholder="e.g. application/json"
+                  value={header.value}
+                  onChange={(e) => updateHeader(header.id, 'value', e.target.value)}
+                  className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent transition-colors duration-200"
+                  disabled={!header.enabled}
+                />
+              </div>
+
+              {/* Remove Button */}
+              <div className="flex-shrink-0">
+                <button
+                  onClick={() => removeHeader(header.id)}
+                  disabled={headersList.length <= 1}
+                  className="p-1.5 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  title="Remove header"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Visual indicator for disabled headers */}
+            {!header.enabled && (
+              <div className="absolute inset-0 bg-gray-200/50 dark:bg-gray-700/50 rounded-lg pointer-events-none opacity-60"></div>
+            )}
+          </div>
+        ))}
+      </div>
+      
+      {headersList.length === 0 && (
+        <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+          <svg className="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <p className="text-sm">No headers configured</p>
+          <button
+            onClick={addHeader}
+            className="mt-2 text-postman-orange hover:text-postman-orange/80 text-sm font-medium"
+          >
+            Add your first header
+          </button>
+        </div>
+      )}
     </div>
   )
 }

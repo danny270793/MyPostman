@@ -5,6 +5,33 @@ import { useRequest } from '../hooks/useRequest'
 import { getStatusColors } from '../utils/colors'
 import { formatJSON } from '../utils/formatting'
 
+// Utility functions for formatting response metadata
+const formatTime = (milliseconds: number): string => {
+  if (milliseconds < 1000) {
+    return `${milliseconds}ms`
+  } else if (milliseconds < 60000) {
+    return `${(milliseconds / 1000).toFixed(2)}s`
+  } else {
+    const minutes = Math.floor(milliseconds / 60000)
+    const seconds = ((milliseconds % 60000) / 1000).toFixed(0)
+    return `${minutes}m ${seconds}s`
+  }
+}
+
+const formatSize = (bytes: number): string => {
+  if (bytes === 0) return '0 B'
+  
+  const units = ['B', 'KB', 'MB', 'GB']
+  const unitIndex = Math.floor(Math.log(bytes) / Math.log(1024))
+  const size = bytes / Math.pow(1024, unitIndex)
+  
+  if (unitIndex === 0) {
+    return `${bytes} B`
+  } else {
+    return `${size.toFixed(1)} ${units[unitIndex]}`
+  }
+}
+
 interface ResponseViewerProps {
   activeTab: ResponseTab
   onTabChange: (tab: ResponseTab) => void
@@ -68,8 +95,8 @@ const ResponseHeader: React.FC<{ response: any }> = ({ response }) => {
         {response && (
           <ResponseMeta 
             status={response.status}
-            time="100ms" // Placeholder
-            size="1KB"   // Placeholder
+            time={formatTime(response.responseTime)}
+            size={formatSize(response.responseSize)}
           />
         )}
       </div>
@@ -301,11 +328,11 @@ const ResponseContent: React.FC<{
   activeTab: ResponseTab
 }> = ({ response, activeTab }) => {
   return (
-    <div className="flex-1 overflow-hidden">
-      <div className="h-full overflow-y-auto custom-scrollbar p-4 lg:p-6 bg-gradient-to-b from-white via-gray-50/30 to-white dark:from-gray-900 dark:via-gray-800/30 dark:to-gray-900">
+    <div className="flex-1 overflow-hidden flex flex-col">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-6 bg-gradient-to-b from-white via-gray-50/30 to-white dark:from-gray-900 dark:via-gray-800/30 dark:to-gray-900">
         <div className="animate-[fadeIn_0.3s_ease-out]">
           {activeTab === 'body' && (
-            <ResponseBody data={response.data} />
+            <ResponseBody data={response.data} size={response.responseSize} />
           )}
           
           {activeTab === 'headers' && (
@@ -321,7 +348,7 @@ const ResponseContent: React.FC<{
   )
 }
 
-const ResponseBody: React.FC<{ data: any }> = ({ data }) => {
+const ResponseBody: React.FC<{ data: any; size: number }> = ({ data }) => {
   const formattedData = formatJSON(data)
 
   return (
@@ -345,14 +372,9 @@ const ResponseBody: React.FC<{ data: any }> = ({ data }) => {
       
       <div className="relative group">
         <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-blue-500/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-        <pre className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-2 border-gray-200/50 dark:border-gray-600/50 rounded-2xl p-6 font-mono text-sm text-gray-900 dark:text-gray-100 overflow-x-auto whitespace-pre-wrap break-words shadow-lg hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300 leading-relaxed">
+        <pre className="relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-2 border-gray-200/50 dark:border-gray-600/50 rounded-2xl p-4 lg:p-6 font-mono text-xs lg:text-sm text-gray-900 dark:text-gray-100 overflow-auto whitespace-pre-wrap break-words shadow-lg hover:shadow-xl hover:shadow-green-500/10 transition-all duration-300 leading-relaxed max-h-[40vh] lg:max-h-none">
           {formattedData}
         </pre>
-        
-        {/* Size indicator */}
-        <div className="absolute top-4 right-4 bg-gray-100/80 dark:bg-gray-700/80 backdrop-blur-sm px-2 py-1 rounded-lg text-xs text-gray-600 dark:text-gray-400 font-medium">
-          {new Blob([formattedData]).size} bytes
-        </div>
       </div>
     </div>
   )

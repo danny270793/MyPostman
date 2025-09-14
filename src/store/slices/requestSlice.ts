@@ -7,6 +7,8 @@ export interface RequestResponse {
   headers: Record<string, string>;
   url: string;
   method: string;
+  responseTime: number; // in milliseconds
+  responseSize: number; // in bytes
 }
 
 export interface RequestError {
