@@ -53,7 +53,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           </button>
 
           {/* Enhanced Tab Navigation */}
-          <div className="relative flex bg-white/10 dark:bg-gray-800/10 backdrop-blur-sm rounded-xl p-1">
+          <div className="relative flex bg-white/10 dark:bg-gray-900/30 backdrop-blur-sm rounded-xl p-1">
             <SidebarTabButton
               isActive={activeTab === 'collections'}
               onClick={() => onTabChange('collections')}
@@ -130,8 +130,8 @@ const SidebarTabButton: React.FC<{
     <button 
       className={`group relative flex-1 px-3 lg:px-4 py-4 text-xs font-semibold transition-all duration-300 border-b-2 rounded-lg ${
         isActive 
-          ? 'text-gray-900 dark:text-white border-postman-orange bg-gradient-to-b from-white/80 to-gray-100/60 dark:from-gray-700/80 dark:to-gray-600/60 shadow-lg' 
-          : 'text-gray-700 dark:text-gray-300 border-transparent hover:text-gray-900 dark:hover:text-white hover:bg-gradient-to-b hover:from-white/40 hover:to-gray-100/30 dark:hover:from-gray-700/40 dark:hover:to-gray-600/30 hover:border-postman-orange/40'
+          ? 'text-gray-900 dark:text-gray-200 border-postman-orange bg-gradient-to-b from-white/80 to-gray-100/60 dark:from-gray-800/90 dark:to-gray-900/80 shadow-lg' 
+          : 'text-gray-700 dark:text-gray-400 border-transparent hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gradient-to-b hover:from-white/40 hover:to-gray-100/30 dark:hover:from-gray-800/50 dark:hover:to-gray-900/40 hover:border-postman-orange/40'
       }`}
       onClick={onClick}
     >
@@ -155,7 +155,7 @@ const SidebarTabButton: React.FC<{
         </div>
         
         <span className={`text-[10px] lg:text-xs uppercase tracking-wider font-bold transition-colors duration-300 ${
-          isActive ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400 group-hover:text-gray-800 dark:group-hover:text-gray-200'
+          isActive ? 'text-gray-900 dark:text-gray-300' : 'text-gray-600 dark:text-gray-500 group-hover:text-gray-800 dark:group-hover:text-gray-300'
         }`}>
           {label}
         </span>
