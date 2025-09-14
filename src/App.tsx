@@ -89,19 +89,26 @@ function App() {
         />
 
         {/* Content Area */}
-        <div className="flex-1 flex flex-col bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-l border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
-          {/* Request Builder */}
-          <RequestBuilder
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-            onSaveRequest={handleSaveRequest}
-          />
+        <div className="flex-1 flex flex-col bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-l border-gray-200/50 dark:border-gray-700/50 overflow-hidden lg:overflow-hidden">
+          {/* Mobile: Stack vertically with scroll, Desktop: Split view */}
+          <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto lg:overflow-hidden">
+            {/* Request Builder */}
+            <div className="flex-shrink-0 lg:flex-1 lg:max-h-full">
+              <RequestBuilder
+                activeTab={activeTab}
+                onTabChange={setActiveTab}
+                onSaveRequest={handleSaveRequest}
+              />
+            </div>
 
-          {/* Response Viewer */}
-          <ResponseViewer
-            activeTab={responseTab}
-            onTabChange={setResponseTab}
-          />
+            {/* Response Viewer */}
+            <div className="flex-1 lg:max-h-full">
+              <ResponseViewer
+                activeTab={responseTab}
+                onTabChange={setResponseTab}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>
