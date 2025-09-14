@@ -50,7 +50,7 @@ function App() {
   }
 
   return (
-    <div className={`${theme === 'dark' ? 'dark' : ''} min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100 transition-all duration-300`}>
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 text-gray-900 dark:text-gray-100 transition-all duration-300">
       {/* Background Pattern */}
       <div className="fixed inset-0 opacity-5 dark:opacity-10">
         <div className="absolute inset-0 bg-gradient-to-r from-postman-orange/20 via-transparent to-postman-orange/20"></div>

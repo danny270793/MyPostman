@@ -235,14 +235,30 @@ function* logErrorSaga(action: PayloadAction<string>): Generator<any, void, any>
   }
 }
 
-// Handle toggle theme saga - gets current theme and triggers update
+// Handle toggle theme saga - gets current theme and applies it
 function* handleToggleThemeSaga(): Generator<any, void, any> {
   try {
     const currentState: RootState = yield select();
     const newTheme = currentState.app.theme;
     
-    // Trigger the theme update saga with the new theme
-    yield call(updateThemeSaga, { type: 'setTheme', payload: newTheme });
+    // Apply the theme directly to the document element
+    localStorage.setItem('mypostman_theme', newTheme);
+    
+    const documentElement = document.documentElement;
+    
+    if (newTheme === 'dark') {
+      documentElement.classList.add('dark');
+      documentElement.setAttribute('data-theme', 'dark');
+    } else {
+      documentElement.classList.remove('dark');
+      documentElement.setAttribute('data-theme', 'light');
+    }
+    
+    yield put(appSlice.actions.showNotification({
+      type: 'success',
+      message: `Theme changed to ${newTheme}`,
+      duration: 2000,
+    }));
   } catch (error) {
     yield put(appSlice.actions.showNotification({
       type: 'error',
