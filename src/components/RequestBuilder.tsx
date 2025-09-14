@@ -344,11 +344,12 @@ const RequestTabs: React.FC<{
               ${activeTab === tab.id 
                 ? `text-postman-orange border-postman-orange 
                    bg-gradient-to-b from-white to-gray-50/50 
-                   dark:from-gray-900 dark:to-gray-800/50
+                   dark:from-gray-800 dark:to-gray-700/50
                    shadow-lg` 
-                : `text-gray-600 dark:text-gray-400 border-transparent 
-                   hover:text-gray-900 dark:hover:text-gray-100
-                   hover:border-gray-300 dark:hover:border-gray-600`
+                : `text-gray-700 dark:text-gray-300 border-transparent 
+                   hover:text-gray-900 dark:hover:text-white
+                   hover:border-gray-400 dark:hover:border-gray-500
+                   hover:bg-gray-50/30 dark:hover:bg-gray-700/20`
               }
             `}
             onClick={() => onTabChange(tab.id)}
