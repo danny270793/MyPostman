@@ -18,7 +18,7 @@ function* apiCall(url: string, options: RequestInit): Generator<any, any, any> {
   try {
     const startTime = Date.now();
     const response: Response = yield call(fetch, url, options);
-    const data = yield call([response, 'json']);
+    const data = yield call([response, 'text']);
     const endTime = Date.now();
     
     if (!response.ok) {
