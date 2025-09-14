@@ -1,3 +1,16 @@
+/* Tailwind CSS v4 Configuration */
+@import "tailwindcss";
+
+/* Custom Theme Configuration */
+@theme {
+  --color-postman-orange: #ff6c37;
+  --color-postman-orange-hover: #e55a2b;
+  --color-postman-dark: #2c2c2c;
+  --color-postman-darker: #1e1e1e;
+  --color-postman-gray: #f8f8f8;
+  --color-postman-border: #e1e1e1;
+}
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -24,8 +37,6 @@ a:hover {
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
 }
