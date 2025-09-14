@@ -468,7 +468,7 @@ const BodyTab: React.FC<{
 const ComingSoonTab: React.FC<{ icon: string }> = ({ icon }) => {
   return (
     <div className="text-center py-8">
-      <div className="text-4xl text-gray-400 mb-2">{icon}</div>
+      <div className="text-4xl text-gray-400 dark:text-gray-400 mb-2">{icon}</div>
       <p className="text-gray-500 dark:text-gray-400">Coming soon...</p>
     </div>
   )
