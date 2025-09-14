@@ -1104,13 +1104,34 @@ const BodyTab: React.FC<{
   label: string
   headers: Record<string, string>
 }> = ({ value, onChange, label, headers }) => {
-  const isJsonContentType = () => {
+  // Content-Type detection
+  const getContentType = () => {
     const contentType = Object.entries(headers).find(
       ([key]) => key.toLowerCase() === 'content-type'
-    )?.[1]
-    return contentType?.toLowerCase().includes('application/json') || false
+    )?.[1]?.toLowerCase()
+    
+    if (contentType?.includes('application/json') || contentType?.includes('text/json')) {
+      return 'json'
+    }
+    if (contentType?.includes('application/xml') || contentType?.includes('text/xml')) {
+      return 'xml'
+    }
+    if (contentType?.includes('text/html')) {
+      return 'html'
+    }
+    if (contentType?.includes('text/css')) {
+      return 'css'
+    }
+    if (contentType?.includes('application/javascript') || contentType?.includes('text/javascript')) {
+      return 'javascript'
+    }
+    if (contentType?.includes('application/yaml') || contentType?.includes('text/yaml') || contentType?.includes('application/x-yaml')) {
+      return 'yaml'
+    }
+    return null
   }
 
+  // Validation functions
   const validateJson = (jsonString: string) => {
     if (!jsonString.trim()) return { isValid: true, error: null }
     try {
@@ -1121,6 +1142,85 @@ const BodyTab: React.FC<{
     }
   }
 
+  const validateXml = (xmlString: string) => {
+    if (!xmlString.trim()) return { isValid: true, error: null }
+    try {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(xmlString, 'application/xml')
+      const parserError = doc.querySelector('parsererror')
+      
+      if (parserError) {
+        return { isValid: false, error: parserError.textContent || 'Invalid XML' }
+      }
+      return { isValid: true, error: null }
+    } catch (error) {
+      return { isValid: false, error: error instanceof Error ? error.message : 'Invalid XML' }
+    }
+  }
+
+  const validateHtml = (htmlString: string) => {
+    if (!htmlString.trim()) return { isValid: true, error: null }
+    try {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(htmlString, 'text/html')
+      
+      // Check for basic HTML structure issues
+      const parserError = doc.querySelector('parsererror')
+      if (parserError) {
+        return { isValid: false, error: parserError.textContent || 'Invalid HTML' }
+      }
+      
+      return { isValid: true, error: null }
+    } catch (error) {
+      return { isValid: false, error: error instanceof Error ? error.message : 'Invalid HTML' }
+    }
+  }
+
+  const validateCss = (cssString: string) => {
+    if (!cssString.trim()) return { isValid: true, error: null }
+    
+    // Basic CSS validation - check for balanced braces
+    const openBraces = (cssString.match(/{/g) || []).length
+    const closeBraces = (cssString.match(/}/g) || []).length
+    
+    if (openBraces !== closeBraces) {
+      return { isValid: false, error: `Unbalanced braces: ${openBraces} opening, ${closeBraces} closing` }
+    }
+    
+    return { isValid: true, error: null }
+  }
+
+  const validateJavaScript = (jsString: string) => {
+    if (!jsString.trim()) return { isValid: true, error: null }
+    
+    try {
+      // Basic syntax check using Function constructor
+      new Function(jsString)
+      return { isValid: true, error: null }
+    } catch (error) {
+      return { isValid: false, error: error instanceof Error ? error.message : 'Invalid JavaScript' }
+    }
+  }
+
+  const validateYaml = (yamlString: string) => {
+    if (!yamlString.trim()) return { isValid: true, error: null }
+    
+    // Basic YAML validation - check indentation and structure
+    const lines = yamlString.split('\n')
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      if (line.trim() && line.includes(':')) {
+        // Check for basic YAML syntax
+        if (line.match(/^[^:]*:[^:]*$/)) {
+          continue
+        }
+      }
+    }
+    
+    return { isValid: true, error: null }
+  }
+
+  // Prettify functions
   const prettifyJson = () => {
     if (!value.trim()) return
     try {
@@ -1128,12 +1228,223 @@ const BodyTab: React.FC<{
       const prettified = JSON.stringify(parsed, null, 2)
       onChange(prettified)
     } catch (error) {
-      // Don't change the value if it's not valid JSON
       console.warn('Cannot prettify invalid JSON:', error)
     }
   }
 
-  const jsonValidation = isJsonContentType() ? validateJson(value) : null
+  const prettifyXml = () => {
+    if (!value.trim()) return
+    try {
+      const parser = new DOMParser()
+      const doc = parser.parseFromString(value, 'application/xml')
+      
+      // Check for parser errors
+      const parserError = doc.querySelector('parsererror')
+      if (parserError) {
+        console.warn('Cannot prettify invalid XML')
+        return
+      }
+      
+      // Simple XML formatting
+      let formatted = value
+        .replace(/></g, '>\n<')
+        .replace(/\n\s*\n/g, '\n')
+      
+      // Add proper indentation
+      const lines = formatted.split('\n')
+      let indentLevel = 0
+      const formattedLines = lines.map(line => {
+        const trimmed = line.trim()
+        if (!trimmed) return ''
+        
+        // Decrease indent for closing tags
+        if (trimmed.startsWith('</')) {
+          indentLevel = Math.max(0, indentLevel - 1)
+        }
+        
+        const result = '  '.repeat(indentLevel) + trimmed
+        
+        // Increase indent for opening tags (but not self-closing)
+        if (trimmed.startsWith('<') && !trimmed.startsWith('</') && !trimmed.endsWith('/>') && !trimmed.includes('<?')) {
+          indentLevel++
+        }
+        
+        return result
+      })
+      
+      onChange(formattedLines.filter(line => line).join('\n'))
+    } catch (error) {
+      console.warn('Cannot prettify XML:', error)
+    }
+  }
+
+  const prettifyHtml = () => {
+    if (!value.trim()) return
+    try {
+      // Simple HTML formatting
+      let formatted = value.replace(/></g, '>\n<')
+      formatted = formatted.split('\n').map((line) => {
+        const depth = (line.match(/</g) || []).length - (line.match(/<\//g) || []).length
+        const indent = '  '.repeat(Math.max(0, depth - 1))
+        return indent + line.trim()
+      }).join('\n')
+      
+      onChange(formatted)
+    } catch (error) {
+      console.warn('Cannot prettify HTML:', error)
+    }
+  }
+
+  const prettifyCss = () => {
+    if (!value.trim()) return
+    try {
+      // Remove extra whitespace and normalize
+      let formatted = value
+        .replace(/\s*{\s*/g, ' {\n')
+        .replace(/;\s*/g, ';\n')
+        .replace(/\s*}\s*/g, '\n}\n')
+        .replace(/,\s*/g, ',\n')
+      
+      // Add proper indentation
+      const lines = formatted.split('\n')
+      let indentLevel = 0
+      const formattedLines = lines.map(line => {
+        const trimmed = line.trim()
+        if (!trimmed) return ''
+        
+        // Decrease indent for closing braces
+        if (trimmed === '}') {
+          indentLevel = Math.max(0, indentLevel - 1)
+        }
+        
+        const result = '  '.repeat(indentLevel) + trimmed
+        
+        // Increase indent after opening braces
+        if (trimmed.endsWith('{')) {
+          indentLevel++
+        }
+        
+        return result
+      })
+      
+      onChange(formattedLines.filter(line => line).join('\n'))
+    } catch (error) {
+      console.warn('Cannot prettify CSS:', error)
+    }
+  }
+
+  const prettifyJavaScript = () => {
+    if (!value.trim()) return
+    try {
+      // Simple JS formatting - basic indentation
+      let formatted = value
+        .replace(/\{/g, ' {\n  ')
+        .replace(/\}/g, '\n}\n')
+        .replace(/;/g, ';\n')
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line)
+        .join('\n')
+      
+      onChange(formatted)
+    } catch (error) {
+      console.warn('Cannot prettify JavaScript:', error)
+    }
+  }
+
+  // Get current format and validation
+  const contentType = getContentType()
+  
+  const getValidation = () => {
+    if (!contentType) return null
+    
+    switch (contentType) {
+      case 'json': return validateJson(value)
+      case 'xml': return validateXml(value)
+      case 'html': return validateHtml(value)
+      case 'css': return validateCss(value)
+      case 'javascript': return validateJavaScript(value)
+      case 'yaml': return validateYaml(value)
+      default: return null
+    }
+  }
+
+  const prettify = () => {
+    if (!contentType) return
+    
+    switch (contentType) {
+      case 'json': prettifyJson(); break
+      case 'xml': prettifyXml(); break
+      case 'html': prettifyHtml(); break
+      case 'css': prettifyCss(); break
+      case 'javascript': prettifyJavaScript(); break
+      default: break
+    }
+  }
+
+  const validation = getValidation()
+
+  const getFormatInfo = () => {
+    const formatMap = {
+      'json': { name: 'JSON', color: 'orange', icon: '{}' },
+      'xml': { name: 'XML', color: 'blue', icon: '</>' },
+      'html': { name: 'HTML', color: 'red', icon: '<>' },
+      'css': { name: 'CSS', color: 'purple', icon: '#' },
+      'javascript': { name: 'JavaScript', color: 'yellow', icon: 'JS' },
+      'yaml': { name: 'YAML', color: 'green', icon: 'YML' }
+    }
+    return contentType ? formatMap[contentType] : null
+  }
+
+  const formatInfo = getFormatInfo()
+
+  const getColorClasses = (color: string) => {
+    const colorMap = {
+      'orange': {
+        bg: 'bg-orange-50/50 dark:bg-orange-900/10',
+        border: 'border-orange-200/30 dark:border-orange-700/30',
+        text: 'text-orange-700 dark:text-orange-300',
+        textSecondary: 'text-orange-600 dark:text-orange-400',
+        icon: 'text-orange-500'
+      },
+      'blue': {
+        bg: 'bg-blue-50/50 dark:bg-blue-900/10',
+        border: 'border-blue-200/30 dark:border-blue-700/30',
+        text: 'text-blue-700 dark:text-blue-300',
+        textSecondary: 'text-blue-600 dark:text-blue-400',
+        icon: 'text-blue-500'
+      },
+      'red': {
+        bg: 'bg-red-50/50 dark:bg-red-900/10',
+        border: 'border-red-200/30 dark:border-red-700/30',
+        text: 'text-red-700 dark:text-red-300',
+        textSecondary: 'text-red-600 dark:text-red-400',
+        icon: 'text-red-500'
+      },
+      'purple': {
+        bg: 'bg-purple-50/50 dark:bg-purple-900/10',
+        border: 'border-purple-200/30 dark:border-purple-700/30',
+        text: 'text-purple-700 dark:text-purple-300',
+        textSecondary: 'text-purple-600 dark:text-purple-400',
+        icon: 'text-purple-500'
+      },
+      'yellow': {
+        bg: 'bg-yellow-50/50 dark:bg-yellow-900/10',
+        border: 'border-yellow-200/30 dark:border-yellow-700/30',
+        text: 'text-yellow-700 dark:text-yellow-300',
+        textSecondary: 'text-yellow-600 dark:text-yellow-400',
+        icon: 'text-yellow-500'
+      },
+      'green': {
+        bg: 'bg-green-50/50 dark:bg-green-900/10',
+        border: 'border-green-200/30 dark:border-green-700/30',
+        text: 'text-green-700 dark:text-green-300',
+        textSecondary: 'text-green-600 dark:text-green-400',
+        icon: 'text-green-500'
+      }
+    }
+    return colorMap[color as keyof typeof colorMap] || colorMap.blue
+  }
 
   return (
     <div className="space-y-3">
@@ -1142,30 +1453,34 @@ const BodyTab: React.FC<{
           Request Body
         </label>
         
-        {/* JSON Controls */}
-        {isJsonContentType() && (
+        {/* Format Controls */}
+        {formatInfo && (
           <div className="flex items-center space-x-3">
-            {/* JSON Validation Indicator */}
+            {/* Validation Indicator */}
             <div className="flex items-center space-x-2">
-              {jsonValidation?.isValid ? (
+              {validation?.isValid ? (
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-green-600 dark:text-green-400 font-medium">Valid JSON</span>
+                  <span className="text-xs text-green-600 dark:text-green-400 font-medium">
+                    Valid {formatInfo.name}
+                  </span>
                 </div>
               ) : (
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                  <span className="text-xs text-red-600 dark:text-red-400 font-medium">Invalid JSON</span>
+                  <span className="text-xs text-red-600 dark:text-red-400 font-medium">
+                    Invalid {formatInfo.name}
+                  </span>
                 </div>
               )}
             </div>
             
             {/* Prettify Button */}
             <button
-              onClick={prettifyJson}
-              disabled={!jsonValidation?.isValid}
+              onClick={prettify}
+              disabled={!validation?.isValid}
               className="px-3 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:ring-postman-orange focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-              title="Format JSON"
+              title={`Format ${formatInfo.name}`}
             >
               <div className="flex items-center space-x-1">
                 <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1184,34 +1499,37 @@ const BodyTab: React.FC<{
           value={value}
           onChange={(e) => onChange(e.target.value)}
           className={`w-full h-32 px-3 py-2 border rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 font-mono text-sm resize-y focus:ring-2 focus:ring-postman-orange focus:border-transparent transition-colors duration-200 ${
-            isJsonContentType() && !jsonValidation?.isValid && value.trim()
+            formatInfo && !validation?.isValid && value.trim()
               ? 'border-red-300 dark:border-red-600'
               : 'border-gray-300 dark:border-gray-600'
           }`}
           rows={6}
         />
         
-        {/* JSON Error Message */}
-        {isJsonContentType() && !jsonValidation?.isValid && value.trim() && (
+        {/* Error Message */}
+        {formatInfo && !validation?.isValid && value.trim() && (
           <div className="absolute bottom-2 left-2 right-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded px-2 py-1">
             <p className="text-xs text-red-600 dark:text-red-400 font-mono">
-              {jsonValidation?.error}
+              {validation?.error}
             </p>
           </div>
         )}
       </div>
 
-      {/* JSON Helper Text */}
-      {isJsonContentType() && (
-        <div className="bg-blue-50/50 dark:bg-blue-900/10 rounded-lg p-3 border border-blue-200/30 dark:border-blue-700/30">
+      {/* Format Helper Text */}
+      {formatInfo && (
+        <div className={`rounded-lg p-3 border ${getColorClasses(formatInfo.color).bg} ${getColorClasses(formatInfo.color).border}`}>
           <div className="flex items-start space-x-2">
-            <svg className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <div className={`w-4 h-4 mt-0.5 flex-shrink-0 flex items-center justify-center text-xs font-bold ${getColorClasses(formatInfo.color).icon}`}>
+              {formatInfo.icon}
+            </div>
             <div>
-              <p className="text-xs text-blue-700 dark:text-blue-300 font-medium">JSON Body Detected</p>
-              <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
-                Your Content-Type header is set to application/json. Make sure your body contains valid JSON format.
+              <p className={`text-xs font-medium ${getColorClasses(formatInfo.color).text}`}>
+                {formatInfo.name} Body Detected
+              </p>
+              <p className={`text-xs mt-1 ${getColorClasses(formatInfo.color).textSecondary}`}>
+                Your Content-Type header indicates {formatInfo.name} format. 
+                Make sure your body contains valid {formatInfo.name} syntax.
               </p>
             </div>
           </div>
