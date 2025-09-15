@@ -90,10 +90,10 @@ function App() {
 
         {/* Content Area */}
         <div className="flex-1 flex flex-col bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm border-l border-gray-200/50 dark:border-gray-700/50 overflow-hidden">
-          {/* Mobile: Stack vertically with scroll, Desktop: Split view with scroll */}
-          <div className="flex-1 flex flex-col lg:flex-row overflow-y-auto">
+          {/* Mobile: Stack vertically with optimized scroll, Desktop: Split view with scroll */}
+          <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
             {/* Request Builder */}
-            <div className="flex-shrink-0 lg:flex-1 lg:h-full lg:overflow-y-auto">
+            <div className="flex-shrink-0 lg:flex-1 lg:h-full overflow-y-auto overscroll-y-contain">
               <RequestBuilder
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
@@ -102,7 +102,7 @@ function App() {
             </div>
 
             {/* Response Viewer */}
-            <div className="flex-1 lg:h-full lg:overflow-y-auto">
+            <div className="flex-1 lg:h-full overflow-y-auto overscroll-y-contain">
               <ResponseViewer
                 activeTab={responseTab}
                 onTabChange={setResponseTab}

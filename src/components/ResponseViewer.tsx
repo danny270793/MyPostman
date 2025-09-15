@@ -192,18 +192,18 @@ const ErrorDisplay: React.FC<{ error: any }> = ({ error }) => {
               {t('response.error')}
             </h3>
             <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 dark:bg-red-800/30 text-red-800 dark:text-red-200">
-              Failed
+              {t('response.failed')}
             </span>
           </div>
           <div className="space-y-3">
             <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 border border-red-200/30 dark:border-red-700/30">
               <p className="text-sm text-red-700 dark:text-red-300">
-                <span className="font-semibold">Message:</span> {error.message}
+                <span className="font-semibold">{t('response.errorMessage')}</span> {error.message}
               </p>
             </div>
             <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 border border-red-200/30 dark:border-red-700/30">
               <p className="text-sm text-red-700 dark:text-red-300">
-                <span className="font-semibold">Status:</span> {error.status}
+                <span className="font-semibold">{t('response.errorStatus')}</span> {error.status}
               </p>
             </div>
           </div>
@@ -215,7 +215,7 @@ const ErrorDisplay: React.FC<{ error: any }> = ({ error }) => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               <p className="text-xs text-blue-700 dark:text-blue-300">
-                Try checking your URL, network connection, or server availability
+                {t('response.errorSuggestion')}
               </p>
             </div>
           </div>
@@ -254,7 +254,7 @@ const ResponseTabs: React.FC<{
     },
     { 
       id: 'cookies' as ResponseTab, 
-      label: 'Cookies',
+      label: t('response.cookies'),
       icon: (
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
@@ -267,27 +267,32 @@ const ResponseTabs: React.FC<{
   return (
     <div className="relative bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border-b border-gray-200/50 dark:border-gray-700/50">
       {/* Mobile scroll hint */}
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50 dark:from-gray-800 to-transparent pointer-events-none lg:hidden"></div>
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white via-gray-50 dark:from-gray-800 dark:via-gray-800 to-transparent pointer-events-none lg:hidden z-10"></div>
       
-      <div className="flex overflow-x-auto scrollbar-none">
+      <div className="flex overflow-x-auto scrollbar-none overscroll-x-contain">
         {tabs.map((tab, index) => (
           <button 
             key={tab.id}
             className={`
-              group relative flex items-center space-x-2 px-4 lg:px-6 py-4
-              text-sm font-semibold transition-all duration-300 
+              group relative flex items-center space-x-2 px-6 lg:px-6 py-5 lg:py-4
+              text-base lg:text-sm font-semibold transition-all duration-300 
               border-b-3 whitespace-nowrap min-w-0 flex-shrink-0
-              hover:bg-gradient-to-b hover:from-white/50 hover:to-transparent
-              dark:hover:from-gray-800/50 dark:hover:to-transparent dark:bg-gray-800/80
+              touch-manipulation active:scale-95 lg:hover:scale-[1.02]
+              bg-white/50 dark:bg-gray-800/80 backdrop-blur-sm
+              hover:bg-gradient-to-b hover:from-white hover:to-blue-50/50
+              dark:hover:from-gray-800/80 dark:hover:to-blue-900/30
+              min-h-[64px] lg:min-h-[56px] focus:outline-none
               ${activeTab === tab.id 
                 ? `text-blue-600 dark:text-blue-400 border-blue-500 
-                   bg-gradient-to-b from-white to-blue-50/30 
+                   bg-gradient-to-b from-white to-blue-50/50 
                    dark:from-gray-800 dark:to-blue-900/30
-                   shadow-lg` 
+                   shadow-lg ring-2 ring-blue-300/20 dark:ring-blue-700/30
+                   border-blue-400/50` 
                 : `text-gray-700 dark:text-gray-300 border-transparent 
                    hover:text-gray-900 dark:hover:text-white
-                   hover:border-gray-400 dark:hover:border-gray-500
-                   hover:bg-gray-50/30 dark:hover:bg-gray-700/20`
+                   hover:border-blue-300 dark:hover:border-blue-500
+                   hover:bg-white/80 dark:hover:bg-gray-700/30
+                   border-gray-200/30 dark:border-gray-600/30`
               }
             `}
             onClick={() => onTabChange(tab.id)}
@@ -295,25 +300,27 @@ const ResponseTabs: React.FC<{
           >
             {/* Active tab glow effect */}
             {activeTab === tab.id && (
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent rounded-t-lg"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/8 via-blue-500/4 to-transparent rounded-t-lg"></div>
             )}
             
             <div className="relative z-10 flex items-center space-x-2">
               <div className={`transition-all duration-300 ${
                 activeTab === tab.id ? 'text-blue-500 dark:text-blue-400 scale-110' : 'group-hover:scale-105'
               }`}>
-                {tab.icon}
+                <div className="w-5 h-5 lg:w-4 lg:h-4">
+                  {tab.icon}
+                </div>
               </div>
               
-              <span className="font-bold tracking-wide">{tab.label}</span>
+              <span className="font-bold tracking-wide truncate">{tab.label}</span>
               
               {/* Emoji badge for visual appeal */}
-              <span className="text-xs opacity-70">{tab.badge}</span>
+              <span className="text-sm lg:text-xs opacity-70">{tab.badge}</span>
             </div>
 
             {/* Active tab indicator line */}
             {activeTab === tab.id && (
-              <div className="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-400"></div>
+              <div className="absolute bottom-0 inset-x-0 h-1 lg:h-0.5 bg-gradient-to-r from-blue-500 to-blue-400 rounded-t-sm"></div>
             )}
           </button>
         ))}
@@ -358,6 +365,7 @@ const ResponseContent: React.FC<{
 }
 
 const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size: number }> = ({ data, headers }) => {
+  const { t } = useTranslation()
   const [displayData, setDisplayData] = useState(() => {
     // Show raw data by default
     return typeof data === 'string' ? data : JSON.stringify(data)
@@ -532,13 +540,13 @@ const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size:
   // Format info for UI
   const getFormatInfo = () => {
     const formatMap = {
-      'json': { name: 'JSON', color: 'green', icon: '{}' },
-      'xml': { name: 'XML', color: 'blue', icon: '</>' },
-      'html': { name: 'HTML', color: 'red', icon: '<>' },
-      'css': { name: 'CSS', color: 'purple', icon: '#' },
-      'javascript': { name: 'JavaScript', color: 'yellow', icon: 'JS' },
-      'yaml': { name: 'YAML', color: 'emerald', icon: 'YML' },
-      'text': { name: 'Text', color: 'gray', icon: 'TXT' }
+      'json': { name: t('response.formats.json'), color: 'green', icon: '{}' },
+      'xml': { name: t('response.formats.xml'), color: 'blue', icon: '</>' },
+      'html': { name: t('response.formats.html'), color: 'red', icon: '<>' },
+      'css': { name: t('response.formats.css'), color: 'purple', icon: '#' },
+      'javascript': { name: t('response.formats.javascript'), color: 'yellow', icon: 'JS' },
+      'yaml': { name: t('response.formats.yaml'), color: 'emerald', icon: 'YML' },
+      'text': { name: t('response.formats.text'), color: 'gray', icon: 'TXT' }
     }
     return formatMap[contentType] || formatMap.text
   }
@@ -568,7 +576,7 @@ const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size:
             </svg>
           </div>
           <label className="text-sm font-bold text-gray-700 dark:text-gray-300">
-            Response Body
+            {t('response.body')}
           </label>
           <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-${formatInfo.color}-100 dark:bg-${formatInfo.color}-900/30 text-${formatInfo.color}-800 dark:text-${formatInfo.color}-200`}>
             {formatInfo.name}
@@ -578,28 +586,28 @@ const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size:
         <div className="flex items-center space-x-2">
           {/* Prettify/Raw Toggle Buttons */}
           {contentType !== 'text' && (
-            <div className="flex items-center space-x-1 bg-gray-100 dark:bg-gray-700 rounded-lg p-1">
+            <div className="flex items-center space-x-1 bg-gray-50 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200 dark:border-gray-600/50 rounded-xl p-1 shadow-sm">
               <button
                 onClick={resetToRaw}
                 disabled={!isPrettified}
-                className={`px-2 py-1 text-xs font-medium rounded transition-colors duration-200 ${
+                className={`px-3 lg:px-2 py-2 lg:py-1 text-sm lg:text-xs font-medium rounded-lg lg:rounded transition-all duration-200 min-h-[32px] lg:min-h-[28px] touch-manipulation ${
                   !isPrettified 
-                    ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                    ? 'bg-blue-500/50 dark:from-gray-600 dark:to-gray-700 text-gray-900 dark:text-gray-100 shadow-md border border-gray-300 dark:border-gray-500'
+                    : 'bg-white text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-600/60'
                 }`}
               >
-                Raw
+                {t('response.raw')}
               </button>
               <button
                 onClick={prettifyResponse}
                 disabled={isPrettified}
-                className={`px-2 py-1 text-xs font-medium rounded transition-colors duration-200 ${
+                className={`px-3 lg:px-2 py-2 lg:py-1 text-sm lg:text-xs font-medium rounded-lg lg:rounded transition-all duration-200 min-h-[32px] lg:min-h-[28px] touch-manipulation ${
                   isPrettified 
-                    ? 'bg-white dark:bg-gray-600 text-gray-900 dark:text-gray-100 shadow-sm'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+                    ? 'bg-blue-500/50 dark:from-gray-600 dark:to-gray-700 text-gray-900 dark:text-gray-100 shadow-md border border-gray-300 dark:border-gray-500'
+                    : 'bg-white text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-600/60'
                 }`}
               >
-                Pretty
+                {t('response.pretty')}
               </button>
             </div>
           )}
@@ -689,6 +697,7 @@ const ResponseCookies: React.FC = () => {
 }
 
 const CopyButton: React.FC<{ data: string }> = ({ data }) => {
+  const { t } = useTranslation()
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
@@ -721,7 +730,7 @@ const CopyButton: React.FC<{ data: string }> = ({ data }) => {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
         )}
       </svg>
-      <span>{copied ? 'Copied!' : 'Copy'}</span>
+      <span>{copied ? t('response.copied') : t('response.copy')}</span>
     </button>
   )
 }
@@ -746,14 +755,14 @@ const EmptyState: React.FC = () => {
       </h3>
       
       <p className="text-gray-500 dark:text-gray-400 text-base mb-8 max-w-md">
-        Send a request to see the response here. The response data, headers, and cookies will be displayed in organized tabs.
+        {t('response.noResponseDesc')}
       </p>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl">
         {[
-          { icon: '📄', title: 'Response Body', desc: 'JSON, XML, HTML data' },
-          { icon: '📋', title: 'Headers', desc: 'HTTP response headers' },
-          { icon: '🍪', title: 'Cookies', desc: 'Session cookies' }
+          { icon: '📄', title: t('response.emptyState.features.0.title'), desc: t('response.emptyState.features.0.description') },
+          { icon: '📋', title: t('response.emptyState.features.1.title'), desc: t('response.emptyState.features.1.description') },
+          { icon: '🍪', title: t('response.emptyState.features.2.title'), desc: t('response.emptyState.features.2.description') }
         ].map((item, index) => (
           <div 
             key={index} 

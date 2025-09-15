@@ -120,19 +120,19 @@ const URLBar: React.FC<{
       
       <div className="relative z-10">
         {/* Mobile stacked layout / Desktop horizontal layout */}
-        <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4">
-          {/* Enhanced Method Selector */}
+        <div className="flex flex-col lg:flex-row space-y-3 lg:space-y-0 lg:space-x-4">
+          {/* Enhanced Method Selector - Mobile optimized */}
           <div className="relative">
             <select 
               value={method} 
               onChange={(e) => onMethodChange(e.target.value)}
               className={`
-                appearance-none w-full lg:w-auto px-4 py-3 lg:py-2.5 
-                rounded-xl lg:rounded-lg border-2 text-white font-bold text-sm 
-                min-w-[90px] lg:min-w-[80px] shadow-lg hover:shadow-xl
-                transition-all duration-300 transform hover:scale-105
+                appearance-none w-full lg:w-auto px-4 py-4 lg:py-2.5 
+                rounded-2xl lg:rounded-lg border-2 text-white font-bold text-base lg:text-sm 
+                min-w-[100px] lg:min-w-[80px] shadow-lg hover:shadow-xl
+                transition-all duration-300 transform active:scale-95 lg:hover:scale-105
                 focus:ring-4 focus:ring-postman-orange/20 focus:border-postman-orange 
-                cursor-pointer backdrop-blur-sm
+                cursor-pointer backdrop-blur-sm touch-manipulation
                 ${getMethodColors(method as any)}
               `}
             >
@@ -142,22 +142,26 @@ const URLBar: React.FC<{
               <option value="DELETE">DELETE</option>
               <option value="PATCH">PATCH</option>
             </select>
-            <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-              <svg className="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
+              <svg className="w-5 h-5 lg:w-4 lg:h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </div>
           </div>
           
-          {/* Enhanced URL Input */}
+          {/* Enhanced URL Input - Mobile optimized */}
           <div className="relative flex-1">
             <input
               type="url"
               placeholder={t('request.url')}
               value={url}
               onChange={(e) => onUrlChange(e.target.value)}
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck="false"
+              inputMode="url"
               className="
-                w-full px-4 py-3 lg:py-2.5 rounded-xl lg:rounded-lg
+                w-full px-4 py-4 lg:py-2.5 rounded-2xl lg:rounded-lg
                 border-2 border-gray-300/50 dark:border-gray-600/50
                 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm
                 text-gray-900 dark:text-gray-100 
@@ -166,31 +170,36 @@ const URLBar: React.FC<{
                 transition-all duration-300
                 focus:ring-4 focus:ring-postman-orange/20 
                 focus:border-postman-orange focus:bg-white dark:focus:bg-gray-800
-                text-sm font-medium
+                text-base lg:text-sm font-medium touch-manipulation
+                focus:outline-none focus:scale-[1.02] lg:focus:scale-100
               "
             />
             {/* URL validation indicator */}
             {url && (
-              <div className="absolute inset-y-0 right-0 flex items-center pr-4">
+              <div className="absolute inset-y-0 right-0 flex items-center pr-4 lg:pr-3">
                 {url.startsWith('http') ? (
-                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                  <div className="w-3 h-3 lg:w-2 lg:h-2 bg-green-500 rounded-full animate-pulse"></div>
                 ) : (
-                  <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+                  <div className="w-3 h-3 lg:w-2 lg:h-2 bg-yellow-500 rounded-full animate-pulse"></div>
                 )}
               </div>
             )}
           </div>
           
-          {/* Enhanced Action Buttons */}
-          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 w-full lg:w-auto lg:flex-shrink-0">
-            <SendButton 
-              isLoading={isLoading}
-              canSend={canSendRequest}
-              onSend={onSendRequest}
-              label={isLoading ? t('request.sending') : t('request.send')}
-            />
+          {/* Enhanced Action Buttons - Mobile optimized */}
+          <div className="flex flex-row space-x-2 lg:space-x-3 w-full lg:w-auto lg:flex-shrink-0">
+            <div className="flex-1 lg:flex-initial">
+              <SendButton 
+                isLoading={isLoading}
+                canSend={canSendRequest}
+                onSend={onSendRequest}
+                label={isLoading ? t('request.sending') : t('request.send')}
+              />
+            </div>
             
-            <SaveButton onClick={onSaveRequest} />
+            <div className="lg:flex-initial">
+              <SaveButton onClick={onSaveRequest} />
+            </div>
           </div>
         </div>
 
@@ -233,17 +242,19 @@ const SendButton: React.FC<{
       onClick={onSend}
       disabled={!canSend}
       className={`
-        group relative flex-1 sm:flex-none px-8 py-3 lg:py-2.5
-        rounded-xl lg:rounded-lg font-bold text-sm
+        group relative w-full flex-1 lg:flex-none px-6 lg:px-8 py-4 lg:py-2.5
+        rounded-2xl lg:rounded-lg font-bold text-base lg:text-sm
         transition-all duration-300 transform
         flex items-center justify-center space-x-2
-        overflow-hidden
+        overflow-hidden touch-manipulation
+        min-h-[56px] lg:min-h-[40px]
         ${!canSend 
           ? 'bg-gray-400 dark:bg-gray-600 cursor-not-allowed text-gray-200 dark:text-gray-400' 
           : `bg-gradient-to-r from-postman-orange to-postman-orange-light 
              text-white shadow-lg hover:shadow-2xl hover:shadow-postman-orange/30
-             hover:scale-105 focus:ring-4 focus:ring-postman-orange/30
-             hover:from-postman-orange-dark hover:to-postman-orange`
+             active:scale-95 lg:hover:scale-105 focus:ring-4 focus:ring-postman-orange/30
+             hover:from-postman-orange-dark hover:to-postman-orange
+             focus:outline-none`
         }
       `}
     >
@@ -254,9 +265,9 @@ const SendButton: React.FC<{
       
       <div className="relative z-10 flex items-center space-x-2">
         {isLoading && <LoadingSpinner />}
-        <span>{label}</span>
+        <span className="font-bold">{label}</span>
         {!isLoading && canSend && (
-          <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 lg:w-4 lg:h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
           </svg>
         )}
@@ -265,30 +276,34 @@ const SendButton: React.FC<{
   )
 }
 
-const SaveButton: React.FC<{ onClick: () => void }> = ({ onClick }) => {
+const SaveButton: React.FC<{ 
+  onClick: () => void
+}> = ({ onClick }) => {
   return (
     <button 
       onClick={onClick}
       className={`
-        group relative p-3 lg:p-2.5 min-w-[48px] lg:min-w-[40px]
-        rounded-xl lg:rounded-lg border-2 border-gray-300/50 dark:border-gray-600/50
+        group relative px-4 py-4 lg:p-2.5 min-w-[56px] lg:min-w-[40px]
+        rounded-2xl lg:rounded-lg border-2 border-gray-300/50 dark:border-gray-600/50
         bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm
         text-gray-600 dark:text-gray-400 
         hover:text-postman-orange dark:hover:text-postman-orange
         hover:border-postman-orange/50 hover:bg-white dark:hover:bg-gray-800
         shadow-lg hover:shadow-xl hover:shadow-postman-orange/10
-        transition-all duration-300 transform hover:scale-105
-        focus:ring-4 focus:ring-postman-orange/20
+        transition-all duration-300 transform active:scale-95 lg:hover:scale-105
+        focus:ring-4 focus:ring-postman-orange/20 focus:outline-none
+        touch-manipulation min-h-[56px] lg:min-h-[40px]
       `}
+      aria-label="Save Request"
     >
-      <div className="relative z-10">
-        <svg className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <div className="relative z-10 flex items-center justify-center">
+        <svg className="w-6 h-6 lg:w-5 lg:h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
         </svg>
       </div>
       
-      {/* Tooltip */}
-      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
+      {/* Tooltip - only show on desktop */}
+      <div className="hidden lg:block absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 dark:bg-gray-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap">
         Save Request
         <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-900 dark:border-t-gray-700"></div>
       </div>
@@ -355,27 +370,32 @@ const RequestTabs: React.FC<{
   return (
     <div className="relative bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border-b border-gray-200/50 dark:border-gray-700/50">
       {/* Mobile scroll hint */}
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50 dark:from-gray-800 to-transparent pointer-events-none lg:hidden"></div>
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white via-gray-50 dark:from-gray-800 dark:via-gray-800 to-transparent pointer-events-none lg:hidden z-10"></div>
       
-      <div className="flex overflow-x-auto scrollbar-none">
+      <div className="flex overflow-x-auto scrollbar-none overscroll-x-contain">
         {tabs.map((tab, index) => (
           <button 
             key={tab.id}
             className={`
-              group relative flex items-center space-x-2 px-4 lg:px-6 py-4
-              text-sm font-semibold transition-all duration-300 
+              group relative flex items-center space-x-2 px-6 lg:px-6 py-5 lg:py-4
+              text-base lg:text-sm font-semibold transition-all duration-300 
               border-b-3 whitespace-nowrap min-w-0 flex-shrink-0
-              hover:bg-gradient-to-b hover:from-white/50 hover:to-transparent
-              dark:hover:from-gray-800/50 dark:hover:to-transparent dark:bg-gray-800/80
+              touch-manipulation active:scale-95 lg:hover:scale-[1.02]
+              bg-white/50 dark:bg-gray-800/80 backdrop-blur-sm
+              hover:bg-gradient-to-b hover:from-white hover:to-gray-50/80
+              dark:hover:from-gray-800/80 dark:hover:to-gray-700/50
+              min-h-[64px] lg:min-h-[56px] focus:outline-none
               ${activeTab === tab.id 
                 ? `text-postman-orange border-postman-orange 
-                   bg-gradient-to-b from-white to-gray-50/50 
+                   bg-gradient-to-b from-white to-gray-50/80 
                    dark:from-gray-800 dark:to-gray-700/50
-                   shadow-lg` 
+                   shadow-lg ring-2 ring-postman-orange/20
+                   border-postman-orange/50` 
                 : `text-gray-700 dark:text-gray-300 border-transparent 
                    hover:text-gray-900 dark:hover:text-white
-                   hover:border-gray-400 dark:hover:border-gray-500
-                   hover:bg-gray-50/30 dark:hover:bg-gray-700/20`
+                   hover:border-gray-300 dark:hover:border-gray-500
+                   hover:bg-white/80 dark:hover:bg-gray-700/30
+                   border-gray-200/30 dark:border-gray-600/30`
               }
             `}
             onClick={() => onTabChange(tab.id)}
@@ -383,22 +403,24 @@ const RequestTabs: React.FC<{
           >
             {/* Active tab glow effect */}
             {activeTab === tab.id && (
-              <div className="absolute inset-0 bg-gradient-to-r from-postman-orange/5 to-transparent rounded-t-lg"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-postman-orange/8 via-postman-orange/4 to-transparent rounded-t-lg"></div>
             )}
             
             <div className="relative z-10 flex items-center space-x-2">
               <div className={`transition-all duration-300 ${
                 activeTab === tab.id ? 'text-postman-orange scale-110' : 'group-hover:scale-105'
               }`}>
-                {tab.icon}
+                <div className="w-5 h-5 lg:w-4 lg:h-4">
+                  {tab.icon}
+                </div>
               </div>
               
-              <span className="font-bold tracking-wide">{tab.label}</span>
+              <span className="font-bold tracking-wide truncate">{tab.label}</span>
             </div>
 
             {/* Active tab indicator line */}
             {activeTab === tab.id && (
-              <div className="absolute bottom-0 inset-x-0 h-0.5 bg-gradient-to-r from-postman-orange to-postman-orange-light"></div>
+              <div className="absolute bottom-0 inset-x-0 h-1 lg:h-0.5 bg-gradient-to-r from-postman-orange to-postman-orange-light rounded-t-sm"></div>
             )}
           </button>
         ))}
@@ -421,7 +443,7 @@ const TabContent: React.FC<{
   const { t } = useTranslation()
 
   return (
-    <div className="p-4 bg-white dark:bg-gray-900 max-h-[50vh] lg:max-h-none overflow-y-auto">
+    <div className="p-4 lg:p-6 bg-white dark:bg-gray-900 max-h-[60vh] lg:max-h-none overflow-y-auto overscroll-y-contain">
       {activeTab === 'headers' && (
         <HeadersKeyValue 
           headers={headers}
@@ -595,12 +617,12 @@ const HeadersKeyValue: React.FC<{
           >
             <div className="flex items-center space-x-3">
               {/* Enable/Disable Checkbox */}
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 flex items-center">
                 <input
                   type="checkbox"
                   checked={header.enabled}
                   onChange={(e) => updateHeader(header.id, 'enabled', e.target.checked)}
-                  className="w-4 h-4 text-postman-orange bg-white border-gray-300 rounded focus:ring-postman-orange dark:focus:ring-postman-orange dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                  className="w-5 h-5 lg:w-4 lg:h-4 text-postman-orange bg-white border-gray-300 rounded-md focus:ring-postman-orange dark:focus:ring-postman-orange dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 touch-manipulation"
                 />
               </div>
 
@@ -611,7 +633,10 @@ const HeadersKeyValue: React.FC<{
                   placeholder="e.g. Content-Type"
                   value={header.key}
                   onChange={(e) => updateHeader(header.id, 'key', e.target.value)}
-                  className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent transition-colors duration-200"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  className="w-full px-4 py-3 lg:px-3 lg:py-2 text-base lg:text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl lg:rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent transition-colors duration-200 touch-manipulation focus:outline-none"
                   disabled={!header.enabled}
                 />
               </div>
@@ -623,7 +648,10 @@ const HeadersKeyValue: React.FC<{
                   placeholder="e.g. application/json"
                   value={header.value}
                   onChange={(e) => updateHeader(header.id, 'value', e.target.value)}
-                  className="w-full px-3 py-2 text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent transition-colors duration-200"
+                  autoCapitalize="none"
+                  autoCorrect="off"
+                  spellCheck="false"
+                  className="w-full px-4 py-3 lg:px-3 lg:py-2 text-base lg:text-sm bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl lg:rounded-md text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-postman-orange focus:border-transparent transition-colors duration-200 touch-manipulation focus:outline-none"
                   disabled={!header.enabled}
                 />
               </div>
@@ -633,10 +661,10 @@ const HeadersKeyValue: React.FC<{
                 <button
                   onClick={() => removeHeader(header.id)}
                   disabled={headersList.length <= 1}
-                  className="p-1.5 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+                  className="p-3 lg:p-1.5 text-gray-400 hover:text-red-500 dark:text-gray-500 dark:hover:text-red-400 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 rounded-xl lg:rounded hover:bg-red-50 dark:hover:bg-red-900/20 touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-red-300 dark:focus:ring-red-700"
                   title="Remove header"
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
                 </button>
@@ -659,7 +687,7 @@ const HeadersKeyValue: React.FC<{
           <p className="text-sm">No headers configured</p>
           <button
             onClick={addHeader}
-            className="mt-2 text-postman-orange hover:text-postman-orange/80 text-sm font-medium"
+            className="mt-3 px-6 py-3 lg:px-4 lg:py-2 text-postman-orange hover:text-postman-orange/80 text-base lg:text-sm font-medium bg-postman-orange/10 hover:bg-postman-orange/20 rounded-2xl lg:rounded-lg transition-all duration-300 touch-manipulation active:scale-95 focus:outline-none focus:ring-2 focus:ring-postman-orange/30"
           >
             Add your first header
           </button>
@@ -1104,6 +1132,8 @@ const BodyTab: React.FC<{
   label: string
   headers: Record<string, string>
 }> = ({ value, onChange, label, headers }) => {
+  const { t } = useTranslation()
+  
   // Content-Type detection
   const getContentType = () => {
     const contentType = Object.entries(headers).find(
@@ -1462,14 +1492,14 @@ const BodyTab: React.FC<{
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span className="text-xs text-green-600 dark:text-green-400 font-medium">
-                    Valid {formatInfo.name}
+                    {t('validation.valid', { format: formatInfo.name })}
                   </span>
                 </div>
               ) : (
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-red-500 rounded-full"></div>
                   <span className="text-xs text-red-600 dark:text-red-400 font-medium">
-                    Invalid {formatInfo.name}
+                    {t('validation.invalid', { format: formatInfo.name })}
                   </span>
                 </div>
               )}
