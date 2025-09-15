@@ -155,9 +155,9 @@ This project is open source and available under the [MIT License](LICENSE).
 
 Connect with me:
 - 🐙 **GitHub**: [danny270793](https://github.com/danny270793)
-- 💼 **LinkedIn**: [daniel-olivares-ruiz](https://linkedin.com/in/daniel-olivares-ruiz)
+- 💼 **LinkedIn**: [danny270793](https://www.linkedin.com/in/danny270793)
 - 📧 **Email**: danny270793@gmail.com
-- 🌐 **Portfolio**: [danielolivares.dev](https://danielolivares.dev)
+- 🌐 **Portfolio**: [danny270793.github.io](https://danny270793.github.io)
 
 ---
 
