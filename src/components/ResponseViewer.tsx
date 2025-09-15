@@ -267,9 +267,9 @@ const ResponseTabs: React.FC<{
   return (
     <div className="relative bg-gradient-to-r from-gray-50 via-white to-gray-50 dark:from-gray-800 dark:via-gray-900 dark:to-gray-800 border-b border-gray-200/50 dark:border-gray-700/50">
       {/* Mobile scroll hint */}
-      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-gray-50 dark:from-gray-800 to-transparent pointer-events-none lg:hidden"></div>
+      <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-white via-gray-50 dark:from-gray-800 dark:via-gray-800 to-transparent pointer-events-none lg:hidden z-10"></div>
       
-      <div className="flex overflow-x-auto scrollbar-none">
+      <div className="flex overflow-x-auto scrollbar-none overscroll-x-contain">
         {tabs.map((tab, index) => (
           <button 
             key={tab.id}
@@ -278,18 +278,21 @@ const ResponseTabs: React.FC<{
               text-base lg:text-sm font-semibold transition-all duration-300 
               border-b-3 whitespace-nowrap min-w-0 flex-shrink-0
               touch-manipulation active:scale-95 lg:hover:scale-[1.02]
-              hover:bg-gradient-to-b hover:from-white/50 hover:to-transparent
-              dark:hover:from-gray-800/50 dark:hover:to-transparent dark:bg-gray-800/80
+              bg-white/50 dark:bg-gray-800/80 backdrop-blur-sm
+              hover:bg-gradient-to-b hover:from-white hover:to-blue-50/50
+              dark:hover:from-gray-800/80 dark:hover:to-blue-900/30
               min-h-[64px] lg:min-h-[56px] focus:outline-none
               ${activeTab === tab.id 
                 ? `text-blue-600 dark:text-blue-400 border-blue-500 
-                   bg-gradient-to-b from-white to-blue-50/30 
+                   bg-gradient-to-b from-white to-blue-50/50 
                    dark:from-gray-800 dark:to-blue-900/30
-                   shadow-lg ring-2 ring-blue-300/20 dark:ring-blue-700/30` 
+                   shadow-lg ring-2 ring-blue-300/20 dark:ring-blue-700/30
+                   border-blue-400/50` 
                 : `text-gray-700 dark:text-gray-300 border-transparent 
                    hover:text-gray-900 dark:hover:text-white
-                   hover:border-gray-400 dark:hover:border-gray-500
-                   hover:bg-gray-50/30 dark:hover:bg-gray-700/20`
+                   hover:border-blue-300 dark:hover:border-blue-500
+                   hover:bg-white/80 dark:hover:bg-gray-700/30
+                   border-gray-200/30 dark:border-gray-600/30`
               }
             `}
             onClick={() => onTabChange(tab.id)}
@@ -297,7 +300,7 @@ const ResponseTabs: React.FC<{
           >
             {/* Active tab glow effect */}
             {activeTab === tab.id && (
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-transparent rounded-t-lg"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/8 via-blue-500/4 to-transparent rounded-t-lg"></div>
             )}
             
             <div className="relative z-10 flex items-center space-x-2">
