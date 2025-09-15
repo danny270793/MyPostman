@@ -586,14 +586,14 @@ const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size:
         <div className="flex items-center space-x-2">
           {/* Prettify/Raw Toggle Buttons */}
           {contentType !== 'text' && (
-            <div className="flex items-center space-x-1 bg-white/80 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200/50 dark:border-gray-600/50 rounded-xl p-1 shadow-sm">
+            <div className="flex items-center space-x-1 bg-gray-50 dark:bg-gray-700/80 backdrop-blur-sm border border-gray-200 dark:border-gray-600/50 rounded-xl p-1 shadow-sm">
               <button
                 onClick={resetToRaw}
                 disabled={!isPrettified}
                 className={`px-3 lg:px-2 py-2 lg:py-1 text-sm lg:text-xs font-medium rounded-lg lg:rounded transition-all duration-200 min-h-[32px] lg:min-h-[28px] touch-manipulation ${
                   !isPrettified 
-                    ? 'bg-gradient-to-b from-white to-gray-50/80 dark:from-gray-600 dark:to-gray-700 text-gray-900 dark:text-gray-100 shadow-md ring-1 ring-gray-200/50 dark:ring-gray-500/50'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-600/60'
+                    ? 'bg-white dark:from-gray-600 dark:to-gray-700 text-gray-900 dark:text-gray-100 shadow-md border border-gray-300 dark:border-gray-500'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-600/60'
                 }`}
               >
                 {t('response.raw')}
@@ -603,8 +603,8 @@ const ResponseBody: React.FC<{ data: any; headers: Record<string, string>; size:
                 disabled={isPrettified}
                 className={`px-3 lg:px-2 py-2 lg:py-1 text-sm lg:text-xs font-medium rounded-lg lg:rounded transition-all duration-200 min-h-[32px] lg:min-h-[28px] touch-manipulation ${
                   isPrettified 
-                    ? 'bg-gradient-to-b from-white to-gray-50/80 dark:from-gray-600 dark:to-gray-700 text-gray-900 dark:text-gray-100 shadow-md ring-1 ring-gray-200/50 dark:ring-gray-500/50'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white/60 dark:hover:bg-gray-600/60'
+                    ? 'bg-white dark:from-gray-600 dark:to-gray-700 text-gray-900 dark:text-gray-100 shadow-md border border-gray-300 dark:border-gray-500'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-white dark:hover:bg-gray-600/60'
                 }`}
               >
                 {t('response.pretty')}
