@@ -151,7 +151,7 @@ This project is open source and available under the [MIT License](LICENSE).
 
 ## 👨‍💻 Author & Social Networks
 
-**Daniel Olivares** - [@danny270793](https://github.com/danny270793)
+**Danny Vaca**
 
 Connect with me:
 - 🐙 **GitHub**: [danny270793](https://github.com/danny270793)
