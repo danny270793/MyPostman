@@ -7,6 +7,7 @@
 **A powerful, modern API testing tool built entirely with Cursor AI assistance**
 
 [![Made with Cursor](https://img.shields.io/badge/Made%20with-Cursor%20AI-FF6C37?style=for-the-badge&logo=cursor)](https://cursor.sh/)
+[![MIT License](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
 [![React](https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178C6?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3+-06B6D4?style=for-the-badge&logo=tailwindcss)](https://tailwindcss.com/)
